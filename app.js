@@ -10,7 +10,7 @@ const CONFIG = {
 
   // GitHub raw image base URL
   // e.g. 'https://raw.githubusercontent.com/YOUR_USERNAME/burnham-market-images/main/images/'
-  IMAGE_BASE_URL: 'https://raw.githubusercontent.com/keithjmorris/burnham-market-images/images/',
+  IMAGE_BASE_URL: 'https://raw.githubusercontent.com/keithjmorris/burnham-market-images/main/images/',
 
   // Image file extension
   IMAGE_EXT: '.jpg',
