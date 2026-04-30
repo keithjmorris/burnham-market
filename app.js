@@ -145,8 +145,8 @@ function buildCard(entry) {
     : null;
 
   const imgHtml = imageUrl
-    ? `<img class="card-image" src="${imageUrl}" alt="${entry.name}" loading="lazy" onerror="this.outerHTML='${placeholderSVG()}'">`
-    : placeholderSVG();
+  ? `<img class="card-image" src="${imageUrl}" alt="${entry.name}" loading="lazy" onerror="this.style.display='none'">`
+  : placeholderSVG();
 
   // ── Tags
   const tags = (entry.tags || []).filter(Boolean);
