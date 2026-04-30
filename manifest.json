@@ -1,0 +1,27 @@
+
+{
+  "name": "Burnham Market Guide",
+  "short_name": "Burnham Market",
+  "description": "Your complete guide to Burnham Market, Norfolk",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2C4A3E",
+  "theme_color": "#2C4A3E",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "lifestyle"],
+  "lang": "en-GB"
+}
