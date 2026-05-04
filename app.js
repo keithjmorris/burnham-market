@@ -59,13 +59,13 @@ async function loadData() {
   showState('loading');
   try {
     const res = await fetch(
-      `https://api.jsonbin.io/v3/b/${CONFIG.JSONBIN_BIN_ID}/latest`,
+      'https://raw.githubusercontent.com/keithjmorris/burnham-market/main/data.json',
       
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     // JSONBin wraps data in { record: [...] }
-    allEntries = Array.isArray(json.record) ? json.record : json.record.entries || [];
+    allEntries = json;
     renderTab(currentTab);
   } catch (err) {
     console.error('Failed to load data:', err);
