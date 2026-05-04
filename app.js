@@ -4,15 +4,8 @@
 
 // ── CONFIGURATION ──────────────────────────────
 const CONFIG = {
-  // Replace with your actual JSONBin details
-  JSONBIN_BIN_ID:  '69f1c75236566621a8052119',
-  JSONBIN_API_KEY: '$2a$10$tu1g4CPPDvkhNoGkNsMN..b8X1gYHLd7XTX4jYOiOfpELZJCYGzxi',
-
   // GitHub raw image base URL
-  // e.g. 'https://raw.githubusercontent.com/YOUR_USERNAME/burnham-market-images/main/images/'
   IMAGE_BASE_URL: 'https://raw.githubusercontent.com/keithjmorris/burnham-market-images/main/images/',
-
-  // Image file extension
   IMAGE_EXT: '.jpg',
 
   // Village centre coordinates (used to centre maps)
@@ -20,8 +13,7 @@ const CONFIG = {
   MAP_ZOOM: 15,
 
   // ── FAIR DATE WINDOW ──
-  // Set this each year to the first day of the fair
-  FAIR_DATE: new Date('2026-07-01'),   // ← update annually
+  FAIR_DATE: new Date('2026-07-01'),
   FAIR_WINDOW_DAYS_BEFORE: 30,
   FAIR_WINDOW_DAYS_AFTER:  30,
 };
