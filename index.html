@@ -43,8 +43,26 @@
       <button class="btn-retry" onclick="loadData()">Try again</button>
     </div>
 
-    <!-- Cards list (Shops / Eat / Facilities / Fair) -->
-    <div class="cards-list hidden" id="cards-list"></div>
+    <!-- Weather card (shown on Shops and Eat tabs) -->
+<div class="weather-card hidden" id="weather-card">
+  <div class="weather-current">
+    <div class="weather-main">
+      <span class="weather-icon" id="weather-icon">⛅</span>
+      <span class="weather-temp" id="weather-temp">--°</span>
+    </div>
+    <div class="weather-details">
+      <p class="weather-condition" id="weather-condition">Loading...</p>
+      <p class="weather-wind" id="weather-wind"></p>
+    </div>
+    <div class="weather-location">
+      <p>Burnham Market</p>
+    </div>
+  </div>
+  <div class="weather-forecast" id="weather-forecast"></div>
+</div>
+
+<!-- Cards list (Shops / Eat / Facilities / Fair) -->
+<div class="cards-list hidden" id="cards-list"></div>
 
     <!-- Map view (Parking / Toilets) -->
     <div class="map-view hidden" id="map-view">

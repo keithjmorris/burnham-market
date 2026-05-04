@@ -18,6 +18,96 @@ const CONFIG = {
   FAIR_WINDOW_DAYS_AFTER:  30,
 };
 
+// ── WEATHER ────────────────────────────────────
+const WMO_CODES = {
+  0:  { label: 'Clear sky',        icon: '☀️' },
+  1:  { label: 'Mainly clear',     icon: '🌤️' },
+  2:  { label: 'Partly cloudy',    icon: '⛅' },
+  3:  { label: 'Overcast',         icon: '☁️' },
+  45: { label: 'Foggy',            icon: '🌫️' },
+  48: { label: 'Icy fog',          icon: '🌫️' },
+  51: { label: 'Light drizzle',    icon: '🌦️' },
+  53: { label: 'Drizzle',          icon: '🌦️' },
+  55: { label: 'Heavy drizzle',    icon: '🌧️' },
+  61: { label: 'Light rain',       icon: '🌧️' },
+  63: { label: 'Rain',             icon: '🌧️' },
+  65: { label: 'Heavy rain',       icon: '🌧️' },
+  71: { label: 'Light snow',       icon: '🌨️' },
+  73: { label: 'Snow',             icon: '❄️' },
+  75: { label: 'Heavy snow',       icon: '❄️' },
+  80: { label: 'Rain showers',     icon: '🌦️' },
+  81: { label: 'Rain showers',     icon: '🌧️' },
+  82: { label: 'Violent showers',  icon: '⛈️' },
+  95: { label: 'Thunderstorm',     icon: '⛈️' },
+  99: { label: 'Thunderstorm',     icon: '⛈️' },
+};
+
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+async function loadWeather() {
+  try {
+    const res = await fetch(
+      'https://api.open-meteo.com/v1/forecast' +
+      '?latitude=52.9455&longitude=0.7245' +
+      '&current=temperature_2m,weathercode,windspeed_10m,apparent_temperature,precipitation_probability' +
+      '&hourly=temperature_2m,weathercode,precipitation_probability' +
+      '&timezone=Europe%2FLondon' +
+      '&forecast_days=2'
+    );
+    if (!res.ok) throw new Error('Weather fetch failed');
+    const data = await res.json();
+    renderWeather(data);
+  } catch (err) {
+    console.warn('Weather unavailable:', err);
+    document.getElementById('weather-card').classList.add('hidden');
+  }
+}
+
+function renderWeather(data) {
+  const current = data.current;
+  const hourly  = data.hourly;
+  const wmo     = WMO_CODES[current.weathercode] || { label: 'Unknown', icon: '🌡️' };
+
+  // ── Current conditions
+  document.getElementById('weather-icon').textContent      = wmo.icon;
+  document.getElementById('weather-temp').textContent      = `${Math.round(current.temperature_2m)}°`;
+  document.getElementById('weather-condition').textContent = wmo.label;
+  document.getElementById('weather-wind').textContent      =
+    `Feels like ${Math.round(current.apparent_temperature)}°  💨 ${Math.round(current.windspeed_10m)} km/h`;
+
+  // ── Find current hour index in hourly array
+  const now         = new Date();
+  const currentHour = now.getHours();
+  const todayStr    = now.toISOString().split('T')[0];
+  const startIndex  = hourly.time.findIndex(t => t === `${todayStr}T${String(currentHour).padStart(2,'0')}:00`);
+
+  // ── Build next 6 hours forecast
+  const forecastEl = document.getElementById('weather-forecast');
+  forecastEl.innerHTML = '';
+
+  for (let i = 0; i < 6; i++) {
+    const idx  = startIndex + i;
+    if (idx >= hourly.time.length) break;
+
+    const time = new Date(hourly.time[idx]);
+    const hour = time.getHours();
+    const label = i === 0 ? 'Now' : `${String(hour).padStart(2,'0')}:00`;
+    const wmoH  = WMO_CODES[hourly.weathercode[idx]] || { icon: '🌡️' };
+    const temp  = Math.round(hourly.temperature_2m[idx]);
+    const rain  = hourly.precipitation_probability[idx];
+
+    forecastEl.innerHTML += `
+      <div class="forecast-day">
+        <span class="forecast-day-name">${label}</span>
+        <span class="forecast-day-icon">${wmoH.icon}</span>
+        <span class="forecast-day-temps">${temp}°</span>
+        <span class="forecast-rain">${rain}%</span>
+      </div>`;
+  }
+
+  document.getElementById('weather-card').classList.remove('hidden');
+}
+
 // ── APP STATE ──────────────────────────────────
 let allEntries  = [];    // all records from JSONBin
 let currentTab  = 'shops';
@@ -32,6 +122,7 @@ const TODAY_KEY  = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]
 document.addEventListener('DOMContentLoaded', () => {
   checkFairTab();
   loadData();
+  loadWeather();
   registerServiceWorker();
 });
 
@@ -105,6 +196,10 @@ function renderTab(tab) {
 
 // ── CARD TABS ─────────────────────────────────
 function renderCardTab(tab) {
+    // Show weather card only on shops and restaurant tabs
+  const weatherCard = document.getElementById('weather-card');
+  weatherCard.classList.toggle('hidden', !['shops', 'restaurant'].includes(tab));
+
   showState('cards');
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
@@ -317,10 +412,10 @@ function showState(state) {
 }
 
 // ── SERVICE WORKER ─────────────────────────────
-function registerServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('Service Worker registered'))
-      .catch(err => console.warn('Service Worker registration failed:', err));
-  }
-}
+// function registerServiceWorker() {
+//   if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker.register('service-worker.js')
+//       .then(() => console.log('Service Worker registered'))
+//       .catch(err => console.warn('Service Worker registration failed:', err));
+//   }
+// }
