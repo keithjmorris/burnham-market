@@ -49,7 +49,7 @@
     "image": "arthurhowell"
   },
   {
-    "id": "22",
+    "id": "3",
     "category": "shop",
     "name": "Aubin",
     "description": "Moderm British Men's Clothing",
@@ -74,7 +74,7 @@
     "image": "aubin"
   },
   {
-    "id": "3",
+    "id": "4",
     "category": "shop",
     "name": "Aurina",
     "description": "Clothing & homewares",
@@ -99,7 +99,7 @@
     "image": "aurina"
   },
   {
-    "id": "4",
+    "id": "5",
     "category": "shop",
     "name": "Barefoot Living",
     "description": "Homewares",
@@ -124,7 +124,7 @@
     "image": "barefootliving"
   },
   {
-    "id": "5",
+    "id": "6",
     "category": "shop",
     "name": "Bedfords",
     "description": "Estate agents",
@@ -501,7 +501,7 @@
     "image": "humblepie"
   },
   {
-    "id": "59",
+    "id": "21",
     "category": "shop",
     "name": "Illann",
     "description": "Men's Clothing",
@@ -526,7 +526,7 @@
     "image": "illann"
   },
   {
-    "id": "21",
+    "id": "22",
     "category": "shop",
     "name": "Jackson-Stops",
     "description": "Estate agent",
@@ -576,7 +576,7 @@
     "image": "joules"
   },
   {
-    "id": "25",
+    "id": "24",
     "category": "shop",
     "name": "Mable's Sweetshop",
     "description": "Confectioners",
@@ -601,7 +601,7 @@
     "image": "mablessweetshop"
   },
   {
-    "id": "26",
+    "id": "25",
     "category": "shop",
     "name": "No.Thirty The Bakery",
     "description": "Bakery",
@@ -626,7 +626,7 @@
     "image": "no30thebakery"
   },
   {
-    "id": "27",
+    "id": "26",
     "category": "shop",
     "name": "Norfolk Hideaways",
     "description": "Holiday lettings",
@@ -651,7 +651,7 @@
     "image": "norfolkhideaways"
   },
   {
-    "id": "28",
+    "id": "27",
     "category": "shop",
     "name": "Norfolk Living",
     "description": "Homewares",
@@ -676,7 +676,7 @@
     "image": "norfolkliving"
   },
   {
-    "id": "29",
+    "id": "28",
     "category": "shop",
     "name": "Paper Moon",
     "description": "Books, newspapers and Post Office",
@@ -701,7 +701,7 @@
     "image": "papermoon"
   },
   {
-    "id": "30",
+    "id": "29",
     "category": "shop",
     "name": "Pococks The Artmonger",
     "description": "",
@@ -726,7 +726,7 @@
     "image": "artmonger"
   },
   {
-    "id": "31",
+    "id": "30",
     "category": "shop",
     "name": "Purely Polished",
     "description": "Hairdresser & barber",
@@ -751,7 +751,7 @@
     "image": "purelypolished"
   },
   {
-    "id": "32",
+    "id": "31",
     "category": "shop",
     "name": "Satchells",
     "description": "Off licence",
@@ -776,7 +776,7 @@
     "image": "satchells"
   },
   {
-    "id": "33",
+    "id": "32",
     "category": "shop",
     "name": "Sowerbys",
     "description": "Estate agents",
@@ -801,7 +801,7 @@
     "image": "sowerbys"
   },
   {
-    "id": "34",
+    "id": "33",
     "category": "shop",
     "name": "Urban Armour",
     "description": "Jewellery and homewares",
@@ -826,7 +826,7 @@
     "image": "urbanarmour"
   },
   {
-    "id": "35",
+    "id": "34",
     "category": "shop",
     "name": "Uttings",
     "description": "Grocers and hardware",
@@ -851,7 +851,7 @@
     "image": "uttings"
   },
   {
-    "id": "24",
+    "id": "35",
     "category": "shop",
     "name": "Wyse",
     "description": "Ladies clothing boutique",
@@ -927,8 +927,34 @@
     "website": "",
     "image": "themermaid"
   },
-  {
+   {
     "id": "38",
+    "category": "restaurant",
+    "name": "Old School Books",
+    "description": "Books and Coffee",
+    "tags": [
+      "Cafe",
+      "Bookshop"
+    ],
+    "phoneNumber": "",
+    "postCode": "",
+    "latitude": 52.9460031,
+    "longitude": 0.7274892,
+    "openingHours": {
+      "monday": "10am-4pm",
+      "tuesday": "10am-4pm",
+      "wednesday": "10am-4pm",
+      "thursday": "10am-4pm",
+      "friday": "10am-4pm",
+      "saturday": "10am-4pm",
+      "sunday": "10am-4pm",
+      "special": ""
+    },
+    "website": "",
+    "image": "oldschoolbooks"
+  },
+  {
+    "id": "39",
     "category": "restaurant",
     "name": "Panda Kitchen",
     "description": "Chinese takeaway",
@@ -954,7 +980,7 @@
     "image": "pandakitchen"
   },
   {
-    "id": "39",
+    "id": "40",
     "category": "restaurant",
     "name": "Scandi Coffee",
     "description": "Coffee shop",
@@ -980,7 +1006,7 @@
     "image": "scandi"
   },
   {
-    "id": "40",
+    "id": "41",
     "category": "restaurant",
     "name": "Socius",
     "description": "Restaurant",
@@ -1005,7 +1031,7 @@
     "image": "socius"
   },
   {
-    "id": "41",
+    "id": "42",
     "category": "restaurant",
     "name": "Tilly's",
     "description": "Tearooms",
@@ -1031,7 +1057,7 @@
     "image": "tillys"
   },
   {
-    "id": "42",
+    "id": "43",
     "category": "restaurant",
     "name": "The Burnhams Tearoom & Cafe",
     "description": "Tearoom & cafe",
@@ -1057,7 +1083,7 @@
     "image": "burnhamstearoom"
   },
   {
-    "id": "43",
+    "id": "44",
     "category": "restaurant",
     "name": "The Hoste Arms",
     "description": "Restaurant, bar & hotel",
@@ -1084,7 +1110,7 @@
     "image": "thehostearms"
   },
   {
-    "id": "44",
+    "id": "45",
     "category": "restaurant",
     "name": "The Nelson",
     "description": "Restaurant, bar & hotel",
@@ -1111,7 +1137,7 @@
     "image": "thenelson"
   },
   {
-    "id": "45",
+    "id": "46",
     "category": "restaurant",
     "name": "Tuscan Farm Shop",
     "description": "Cafe and delicatessen",
@@ -1137,7 +1163,7 @@
     "image": "tuscanfarmshop"
   },
   {
-    "id": "46",
+    "id": "47",
     "category": "facility",
     "name": "Burnham Market & Norton Village Hall",
     "description": "Village Hall",
@@ -1162,7 +1188,7 @@
     "image": "smallbmandnvh"
   },
   {
-    "id": 47,
+    "id": 48,
     "category": "facility",
     "name": "Burnham Motors",
     "description": "Petrol station",
@@ -1187,7 +1213,7 @@
     "image": "burnhammotors"
   },
   {
-    "id": "48",
+    "id": "49",
     "category": "facility",
     "name": "The Burnhams Tennis Club",
     "description": "Tennis Club, with 2 hard courts, pavilion and WC",
@@ -1212,7 +1238,7 @@
     "image": "burnhamstennisclub"
   },
   {
-    "id": "49",
+    "id": "50",
     "category": "facility",
     "name": "Burnham Market Dental Surgery",
     "description": "Dentist",
@@ -1364,7 +1390,7 @@
     "image": "playingfieldpavilion"
   },
   {
-    "id": "50",
+    "id": "56",
     "category": "facility",
     "name": "St. Mary's Church",
     "description": "Church",
@@ -1389,7 +1415,7 @@
     "image": "stmaryschurch"
   },
   {
-    "id": "56",
+    "id": "57",
     "category": "facility",
     "name": "All Saints' Church",
     "description": "Church",
@@ -1414,7 +1440,7 @@
     "image": "allsaintschurch2"
   },
   {
-    "id": "57",
+    "id": "58",
     "category": "facility",
     "name": "St. Henry's Church",
     "description": "Catholic Church",
@@ -1439,7 +1465,7 @@
     "image": "sthenryscatholicchurch"
   },
   {
-    "id": "58",
+    "id": "59",
     "category": "facility",
     "name": "Childrens Playground",
     "description": "Playing Field & Childrens' Playground",
@@ -1462,5 +1488,30 @@
     },
     "website": "",
     "image": "childrensplayarea"
+  },
+  {
+    "id": "60",
+    "category": "facility",
+    "name": "Burnham Market School",
+    "description": "Primary & Infants school",
+    "tags": [
+      "School"
+    ],
+    "phoneNumber": "",
+    "postCode": "",
+    "latitude": 52.9508178,
+    "longitude": 0.7345675,
+    "openingHours": {
+      "monday": "9am-5pm",
+      "tuesday": "9am-5pm",
+      "wednesday": "9am-5pm",
+      "thursday": "9am-5pm",
+      "friday": "9am-5pm",
+      "saturday": "Closed",
+      "sunday": "Closed",
+      "special": ""
+    },
+    "website": "",
+    "image": "school"
   }
 ]
