@@ -5,7 +5,7 @@
     "name": "Anna",
     "description": "Upmarket clothing boutique",
     "tags": [
-      "clothing"
+      "Clothing"
     ],
     "phoneNumber": "01328 730325",
     "postCode": "NR21 9BT",
@@ -29,7 +29,7 @@
     "name": "Arthur Howell",
     "description": "Butchers",
     "tags": [
-      "Butcher"
+      "Food & Drink"
     ],
     "phoneNumber": "01328 738230",
     "postCode": "PE31",
@@ -104,7 +104,7 @@
     "name": "Barefoot Living",
     "description": "Homewares",
     "tags": [
-      "Home"
+      "Homewares"
     ],
     "phoneNumber": "01328 738100",
     "postCode": "PE31",
@@ -129,7 +129,7 @@
     "name": "Bedfords",
     "description": "Estate agents",
     "tags": [
-      "Estate agents"
+      "Estate agent"
     ],
     "phoneNumber": "01328 730500",
     "postCode": "PE31 8HF",
@@ -229,7 +229,7 @@
     "name": "Burnham Market Stores",
     "description": "General stores",
     "tags": [
-      "Food & drink"
+      "Food & Drink"
     ],
     "phoneNumber": "01328 738259",
     "postCode": "PE31 8",
@@ -254,8 +254,9 @@
     "name": "Burnham Motors Garage",
     "description": "General store, petrol station and motor garage",
     "tags": [
-      "Food",
-      "Garage"
+      "Food & Drink",
+      "Garage",
+      "Petrol"
     ],
     "phoneNumber": "01328 738387",
     "postCode": "Fielding",
@@ -277,10 +278,35 @@
   {
     "id": "12",
     "category": "shop",
+    "name": "Burnham Salon",
+    "description": "Hairdresser",
+    "tags": [
+      "Hairdresser"
+    ],
+    "phoneNumber": "07515875044",
+    "postCode": "",
+    "latitude": 52.9450193,
+    "longitude": 0.7252599,
+    "openingHours": {
+      "monday": "Closed",
+      "tuesday": "Closed",
+      "wednesday": "8am-5pm",
+      "thursday": "8am-5pm",
+      "friday": "8am-5pm",
+      "saturday": "8am-5pm",
+      "sunday": "Closed",
+      "special": ""
+    },
+    "website": "",
+    "image": "burnhamsalon"
+  },
+  {
+    "id": "13",
+    "category": "shop",
     "name": "Emma's Court",
     "description": "Cafe, hairdressers, homewares, estate agents",
     "tags": [
-      "Food",
+      "Food & Drink",
       "Housewares"
     ],
     "phoneNumber": "",
@@ -301,7 +327,7 @@
     "image": "emmascourt"
   },
   {
-    "id": "13",
+    "id": "14",
     "category": "shop",
     "name": "Eric & Dolly's",
     "description": "Pet boutique",
@@ -326,7 +352,7 @@
     "image": "eric&dollys"
   },
   {
-    "id": "14",
+    "id": "15",
     "category": "shop",
     "name": "Fairfax Gallery",
     "description": "Art Gallery",
@@ -351,7 +377,7 @@
     "image": "fairfaxgallery"
   },
   {
-    "id": "15",
+    "id": "16",
     "category": "shop",
     "name": "Gilly's",
     "description": "Clothing, hats and fancy goods",
@@ -376,12 +402,12 @@
     "image": "gillys"
   },
   {
-    "id": "16",
+    "id": "17",
     "category": "shop",
-    "name": "Guerney's",
+    "name": "Gurney's",
     "description": "Fresh fish",
     "tags": [
-      "Food"
+      "Food & Drink"
     ],
     "phoneNumber": "01328 738967",
     "postCode": "PE31",
@@ -401,7 +427,7 @@
     "image": "guerneys"
   },
   {
-    "id": "17",
+    "id": "18",
     "category": "shop",
     "name": "Gun Hill Clothing Company",
     "description": "Mens and Ladies clothing shop",
@@ -426,7 +452,7 @@
     "image": "gunhillclothingcompany"
   },
   {
-    "id": "18",
+    "id": "19",
     "category": "shop",
     "name": "Gun Hill Great Outdoors",
     "description": "Outdoor clothing for people and dogs",
@@ -451,7 +477,7 @@
     "image": "gunhillgreatoutdoors"
   },
   {
-    "id": "19",
+    "id": "20",
     "category": "shop",
     "name": "Hamilton Antiques",
     "description": "Antiques",
@@ -476,12 +502,12 @@
     "image": "hamiltonantiques"
   },
   {
-    "id": "20",
+    "id": "21",
     "category": "shop",
     "name": "Humble Pie",
     "description": "Delicatessen",
     "tags": [
-      "Food"
+      "Food & Drink"
     ],
     "phoneNumber": "01328 738581",
     "postCode": "PE31 8HF",
@@ -501,7 +527,7 @@
     "image": "humblepie"
   },
   {
-    "id": "21",
+    "id": "22",
     "category": "shop",
     "name": "Illann",
     "description": "Men's Clothing",
@@ -526,7 +552,7 @@
     "image": "illann"
   },
   {
-    "id": "22",
+    "id": "23",
     "category": "shop",
     "name": "Jackson-Stops",
     "description": "Estate agent",
@@ -551,7 +577,7 @@
     "image": "jacksonstops"
   },
   {
-    "id": "23",
+    "id": "24",
     "category": "shop",
     "name": "Joules",
     "description": "Mens and ladies clothing",
@@ -576,12 +602,12 @@
     "image": "joules"
   },
   {
-    "id": "24",
+    "id": "25",
     "category": "shop",
     "name": "Mable's Sweetshop",
     "description": "Confectioners",
     "tags": [
-      "Food"
+      "Confectionery"
     ],
     "phoneNumber": "01328 730379",
     "postCode": "PE31",
@@ -601,12 +627,12 @@
     "image": "mablessweetshop"
   },
   {
-    "id": "25",
+    "id": "26",
     "category": "shop",
     "name": "No.Thirty The Bakery",
     "description": "Bakery",
     "tags": [
-      "Food"
+      "Bakery"
     ],
     "phoneNumber": "",
     "postCode": "PE31",
@@ -626,12 +652,12 @@
     "image": "no30thebakery"
   },
   {
-    "id": "26",
+    "id": "27",
     "category": "shop",
     "name": "Norfolk Hideaways",
     "description": "Holiday lettings",
     "tags": [
-      "Holiday lettings"
+      "Holiday Lettings"
     ],
     "phoneNumber": "01485 211022",
     "postCode": "PE31 8LG",
@@ -651,12 +677,12 @@
     "image": "norfolkhideaways"
   },
   {
-    "id": "27",
+    "id": "28",
     "category": "shop",
     "name": "Norfolk Living",
     "description": "Homewares",
     "tags": [
-      "Home"
+      "Homewares"
     ],
     "phoneNumber": "01328 730518",
     "postCode": "Fielding",
@@ -676,12 +702,13 @@
     "image": "norfolkliving"
   },
   {
-    "id": "28",
+    "id": "29",
     "category": "shop",
     "name": "Paper Moon",
     "description": "Books, newspapers and Post Office",
     "tags": [
-      "Books"
+      "Books",
+      "Newspapers"
     ],
     "phoneNumber": "01328 738273",
     "postCode": "PE31 8HD",
@@ -701,7 +728,7 @@
     "image": "papermoon"
   },
   {
-    "id": "29",
+    "id": "30",
     "category": "shop",
     "name": "Pococks The Artmonger",
     "description": "",
@@ -726,7 +753,7 @@
     "image": "artmonger"
   },
   {
-    "id": "30",
+    "id": "31",
     "category": "shop",
     "name": "Purely Polished",
     "description": "Hairdresser & barber",
@@ -751,12 +778,12 @@
     "image": "purelypolished"
   },
   {
-    "id": "31",
+    "id": "32",
     "category": "shop",
     "name": "Satchells",
     "description": "Off licence",
     "tags": [
-      "Drink"
+      "Off licence"
     ],
     "phoneNumber": "01328 738272",
     "postCode": "PE31",
@@ -776,7 +803,7 @@
     "image": "satchells"
   },
   {
-    "id": "32",
+    "id": "33",
     "category": "shop",
     "name": "Sowerbys",
     "description": "Estate agents",
@@ -801,7 +828,7 @@
     "image": "sowerbys"
   },
   {
-    "id": "33",
+    "id": "34",
     "category": "shop",
     "name": "Urban Armour",
     "description": "Jewellery and homewares",
@@ -826,12 +853,13 @@
     "image": "urbanarmour"
   },
   {
-    "id": "34",
+    "id": "35",
     "category": "shop",
     "name": "Uttings",
     "description": "Grocers and hardware",
     "tags": [
-      "Grocers and hardware"
+      "Food & Drink",
+      "Hardware"
     ],
     "phoneNumber": "01328 738353",
     "postCode": "E31",
@@ -851,7 +879,7 @@
     "image": "uttings"
   },
   {
-    "id": "35",
+    "id": "36",
     "category": "shop",
     "name": "Wyse",
     "description": "Ladies clothing boutique",
@@ -876,7 +904,7 @@
     "image": "wyse"
   },
   {
-    "id": "36",
+    "id": "37",
     "category": "restaurant",
     "name": "No.Twenty Nine",
     "description": "Restaurant and bar",
@@ -902,13 +930,12 @@
     "image": "no29"
   },
   {
-    "id": "37",
+    "id": "38",
     "category": "restaurant",
     "name": "Mermaid Cafe",
     "description": "Fish & chips",
     "tags": [
-      "Cafe",
-      "Fish & chips"
+      "Cafe"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -928,13 +955,13 @@
     "image": "themermaid"
   },
    {
-    "id": "38",
+    "id": "39",
     "category": "restaurant",
     "name": "Old School Books",
     "description": "Books and Coffee",
     "tags": [
       "Cafe",
-      "Bookshop"
+      "Books"
     ],
     "phoneNumber": "",
     "postCode": "",
@@ -954,11 +981,12 @@
     "image": "coffeeandbooks"
   },
   {
-    "id": "39",
+    "id": "40",
     "category": "restaurant",
     "name": "Panda Kitchen",
     "description": "Chinese takeaway",
     "tags": [
+      "Food",
       "Takeaway",
       "Chinese"
     ],
@@ -980,7 +1008,7 @@
     "image": "pandakitchen"
   },
   {
-    "id": "40",
+    "id": "41",
     "category": "restaurant",
     "name": "Scandi Coffee",
     "description": "Coffee shop",
@@ -1006,7 +1034,7 @@
     "image": "scandi"
   },
   {
-    "id": "41",
+    "id": "42",
     "category": "restaurant",
     "name": "Socius",
     "description": "Restaurant",
@@ -1031,7 +1059,7 @@
     "image": "socius"
   },
   {
-    "id": "42",
+    "id": "43",
     "category": "restaurant",
     "name": "Tilly's",
     "description": "Tearooms",
@@ -1057,7 +1085,7 @@
     "image": "tillys"
   },
   {
-    "id": "43",
+    "id": "44",
     "category": "restaurant",
     "name": "The Burnhams Tearoom & Cafe",
     "description": "Tearoom & cafe",
@@ -1083,7 +1111,7 @@
     "image": "burnhamstearoom"
   },
   {
-    "id": "44",
+    "id": "45",
     "category": "restaurant",
     "name": "The Hoste Arms",
     "description": "Restaurant, bar & hotel",
@@ -1110,7 +1138,7 @@
     "image": "thehostearms"
   },
   {
-    "id": "45",
+    "id": "46",
     "category": "restaurant",
     "name": "The Nelson",
     "description": "Restaurant, bar & hotel",
@@ -1137,11 +1165,12 @@
     "image": "thenelson"
   },
   {
-    "id": "46",
+    "id": "47",
     "category": "restaurant",
     "name": "Tuscan Farm Shop",
     "description": "Cafe and delicatessen",
     "tags": [
+      "Food & Drink",
       "Cafe",
       "Delicatessen"
     ],
@@ -1163,7 +1192,7 @@
     "image": "tuscanfarmshop"
   },
   {
-    "id": "47",
+    "id": "48",
     "category": "facility",
     "name": "Burnham Market & Norton Village Hall",
     "description": "Village Hall",
@@ -1188,12 +1217,12 @@
     "image": "smallbmandnvh"
   },
   {
-    "id": 48,
+    "id": 49,
     "category": "facility",
     "name": "Burnham Motors",
     "description": "Petrol station",
     "tags": [
-      "Petrol station"
+      "Petrol"
     ],
     "phoneNumber": "01328738387",
     "postCode": "",
@@ -1213,12 +1242,12 @@
     "image": "burnhammotors"
   },
   {
-    "id": "49",
+    "id": "50",
     "category": "facility",
     "name": "The Burnhams Tennis Club",
     "description": "Tennis Club, with 2 hard courts, pavilion and WC",
     "tags": [
-      "Tennis Club"
+      "Sports"
     ],
     "phoneNumber": "",
     "postCode": "",
@@ -1238,12 +1267,12 @@
     "image": "burnhamstennisclub"
   },
   {
-    "id": "50",
+    "id": "51",
     "category": "facility",
     "name": "Burnham Market Dental Surgery",
     "description": "Dentist",
     "tags": [
-      "Dentist"
+      "Medical"
     ],
     "phoneNumber": "01328738525",
     "postCode": "",
@@ -1264,12 +1293,12 @@
   },
   
   {
-    "id": "51",
+    "id": "52",
     "category": "facility",
     "name": "The Surgery",
     "description": "Doctors' surgery",
     "tags": [
-      "Doctors' surgery"
+      "Medical"
     ],
     "phoneNumber": "01328737000",
     "postCode": "",
@@ -1289,12 +1318,12 @@
     "image": "thesurgery"
   },
   {
-    "id": "52",
+    "id": "53",
     "category": "parking",
     "name": "Car Park",
     "description": "Car park",
     "tags": [
-      "parking"
+      "Public Service"
     ],
     "phoneNumber": "",
     "postCode": "",
@@ -1314,12 +1343,12 @@
     "image": "carpark"
   },
   {
-    "id": "53",
+    "id": "54",
     "category": "toilets",
     "name": "Public Toilets",
     "description": "Public WC",
     "tags": [
-      "toilets"
+      "Public Service"
     ],
     "phoneNumber": "",
     "postCode": "",
@@ -1339,12 +1368,12 @@
     "image": "toilets"
   },
   {
-    "id": "54",
+    "id": "55",
     "category": "facility",
     "name": "Playing Field",
     "description": "Playing Field & Childrens' Playground",
     "tags": [
-      "Playing Field",
+      "Sports",
       "Playground"
     ],
     "phoneNumber": "",
@@ -1365,12 +1394,12 @@
     "image": "playingfield"
   },
   {
-    "id": "55",
+    "id": "56",
     "category": "facility",
     "name": "Playing Field Pavilion",
     "description": "Pavilion available for hire",
     "tags": [
-      "Pavilion"
+      "Sports"
     ],
     "phoneNumber": "07437 529179",
     "postCode": "",
@@ -1390,7 +1419,7 @@
     "image": "playingfieldpavilion"
   },
   {
-    "id": "56",
+    "id": "57",
     "category": "facility",
     "name": "St. Mary's Church",
     "description": "Church",
@@ -1415,7 +1444,7 @@
     "image": "stmaryschurch"
   },
   {
-    "id": "57",
+    "id": "58",
     "category": "facility",
     "name": "All Saints' Church",
     "description": "Church",
@@ -1440,12 +1469,12 @@
     "image": "allsaintschurch2"
   },
   {
-    "id": "58",
+    "id": "59",
     "category": "facility",
     "name": "St. Henry's Church",
     "description": "Catholic Church",
     "tags": [
-      "Catholic Church"
+      "Church"
     ],
     "phoneNumber": "",
     "postCode": "",
@@ -1465,7 +1494,7 @@
     "image": "sthenryscatholicchurch"
   },
   {
-    "id": "59",
+    "id": "60",
     "category": "facility",
     "name": "Childrens Playground",
     "description": "Playing Field & Childrens' Playground",
@@ -1490,7 +1519,7 @@
     "image": "childrensplayarea"
   },
   {
-    "id": "60",
+    "id": "61",
     "category": "facility",
     "name": "Burnham Market School",
     "description": "Primary & Infants school",
