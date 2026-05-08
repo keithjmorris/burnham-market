@@ -42,17 +42,30 @@ const WMO_CODES = {
   99: { label: 'Thunderstorm',     icon: '⛈️' },
 };
 
+function getDayNightIcon(wmo, isDay) {
+  if (isDay) return wmo.icon;
+  // Night time icon substitutions
+  const nightIcons = {
+    '☀️':  '🌙',   // Clear -> Moon
+    '🌤️': '🌙',   // Mainly clear -> Moon
+    '⛅':  '🌙',   // Partly cloudy -> Moon  
+    '☁️':  '☁️',   // Overcast stays the same
+  };
+  return nightIcons[wmo.icon] || wmo.icon;
+}
+
 const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 async function loadWeather() {
   try {
     const res = await fetch(
       'https://api.open-meteo.com/v1/forecast' +
-      '?latitude=52.9455&longitude=0.7245' +
-      '&current=temperature_2m,weathercode,windspeed_10m,apparent_temperature,precipitation_probability' +
-      '&hourly=temperature_2m,weathercode,precipitation_probability' +
-      '&timezone=Europe%2FLondon' +
-      '&forecast_days=2'
+'?latitude=52.9455&longitude=0.7245' +
+'&current=temperature_2m,weathercode,windspeed_10m,apparent_temperature,precipitation_probability' +
+'&hourly=temperature_2m,weathercode,precipitation_probability' +
+'&daily=sunrise,sunset' +
+'&timezone=Europe%2FLondon' +
+'&forecast_days=2'
     );
     if (!res.ok) throw new Error('Weather fetch failed');
     const data = await res.json();
@@ -66,20 +79,30 @@ async function loadWeather() {
 function renderWeather(data) {
   const current = data.current;
   const hourly  = data.hourly;
+  const daily   = data.daily;
   const wmo     = WMO_CODES[current.weathercode] || { label: 'Unknown', icon: '🌡️' };
 
-  // ── Current conditions
-  document.getElementById('weather-icon').textContent      = wmo.icon;
+  // ── Parse today's sunrise and sunset
+  const sunrise = new Date(daily.sunrise[0]);
+  const sunset  = new Date(daily.sunset[0]);
+  const now     = new Date();
+  const isDay   = now >= sunrise && now <= sunset;
+
+  // ── Current conditions (with day/night icon adjustment)
+  document.getElementById('weather-icon').textContent      = getDayNightIcon(wmo, isDay);
   document.getElementById('weather-temp').textContent      = `${Math.round(current.temperature_2m)}°`;
   document.getElementById('weather-condition').textContent = wmo.label;
   document.getElementById('weather-wind').textContent      =
     `Feels like ${Math.round(current.apparent_temperature)}°  💨 ${Math.round(current.windspeed_10m)} km/h`;
 
   // ── Find current hour index in hourly array
-  const now         = new Date();
   const currentHour = now.getHours();
   const todayStr    = now.toISOString().split('T')[0];
   const startIndex  = hourly.time.findIndex(t => t === `${todayStr}T${String(currentHour).padStart(2,'0')}:00`);
+
+  // ── Get tomorrow's sunrise and sunset for overnight hours
+  const sunrise1 = new Date(daily.sunrise[1]);
+  const sunset1  = new Date(daily.sunset[1]);
 
   // ── Build next 6 hours forecast
   const forecastEl = document.getElementById('weather-forecast');
@@ -89,17 +112,21 @@ function renderWeather(data) {
     const idx  = startIndex + i;
     if (idx >= hourly.time.length) break;
 
-    const time = new Date(hourly.time[idx]);
-    const hour = time.getHours();
-    const label = i === 0 ? 'Now' : `${String(hour).padStart(2,'0')}:00`;
-    const wmoH  = WMO_CODES[hourly.weathercode[idx]] || { icon: '🌡️' };
-    const temp  = Math.round(hourly.temperature_2m[idx]);
-    const rain  = hourly.precipitation_probability[idx];
+    const time    = new Date(hourly.time[idx]);
+    const hour    = time.getHours();
+    const label   = i === 0 ? 'Now' : `${String(hour).padStart(2,'0')}:00`;
+    const wmoH    = WMO_CODES[hourly.weathercode[idx]] || { icon: '🌡️' };
+    const temp    = Math.round(hourly.temperature_2m[idx]);
+    const rain    = hourly.precipitation_probability[idx];
+
+    // Check if this hour is daytime
+    const isDayH  = (time >= sunrise && time <= sunset) ||
+                    (time >= sunrise1 && time <= sunset1);
 
     forecastEl.innerHTML += `
       <div class="forecast-day">
         <span class="forecast-day-name">${label}</span>
-        <span class="forecast-day-icon">${wmoH.icon}</span>
+        <span class="forecast-day-icon">${getDayNightIcon(wmoH, isDayH)}</span>
         <span class="forecast-day-temps">${temp}°</span>
         <span class="forecast-rain">${rain}%</span>
       </div>`;
