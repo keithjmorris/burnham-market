@@ -935,7 +935,8 @@
     "name": "Mermaid Cafe",
     "description": "Fish & chips",
     "tags": [
-      "Cafe"
+      "Cafe",
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -987,8 +988,7 @@
     "description": "Chinese takeaway",
     "tags": [
       "Food",
-      "Takeaway",
-      "Chinese"
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -1014,7 +1014,7 @@
     "description": "Coffee shop",
     "tags": [
       "Cafe",
-      "Coffee"
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -1065,7 +1065,8 @@
     "description": "Tearooms",
     "tags": [
       "Tearoom",
-      "Cafe"
+      "Cafe",
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -1091,7 +1092,8 @@
     "description": "Tearoom & cafe",
     "tags": [
       "Tearoom",
-      "Cafe"
+      "Cafe",
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
@@ -1172,7 +1174,7 @@
     "tags": [
       "Food & Drink",
       "Cafe",
-      "Delicatessen"
+      "Takeaway"
     ],
     "phoneNumber": "01328 738851",
     "postCode": "",
