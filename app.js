@@ -112,6 +112,7 @@ function renderWeather(data) {
 let allEntries  = [];    // all records from JSONBin
 let currentTab  = 'shops';
 let map         = null;  // Leaflet map instance
+let activeFilter = null;
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -182,7 +183,8 @@ function switchTab(tab) {
     map = null;
   }
 
-  renderTab(tab);
+  activeFilter = null;
+renderTab(tab);
 }
 
 // ── RENDER DISPATCHER ─────────────────────────
@@ -196,22 +198,31 @@ function renderTab(tab) {
 
 // ── CARD TABS ─────────────────────────────────
 function renderCardTab(tab) {
-    // Show weather card only on shops and restaurant tabs
+  // Show weather card only on shops and restaurant tabs
   const weatherCard = document.getElementById('weather-card');
-  weatherCard.classList.toggle('hidden', !['shops', 'restaurant'].includes(tab));
+  weatherCard.classList.toggle('hidden', !['shops', 'restaurant', 'facility'].includes(tab));
 
   showState('cards');
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
 
   const categoryMap = { shops: 'shop', restaurant: 'restaurant', facility: 'facility', fair: 'fair' };
-const filtered = allEntries.filter(e => e.category === (categoryMap[tab] || tab));
+  let filtered = allEntries.filter(e => e.category === (categoryMap[tab] || tab));
+
+  // Apply tag filter if active
+  if (activeFilter) {
+    filtered = filtered.filter(e => e.tags && e.tags.includes(activeFilter));
+  }
+
+  // Build filter bar
+  const filterBar = buildFilterBar(tab, filtered.length, allEntries.filter(e => e.category === (categoryMap[tab] || tab)).length);
+  if (filterBar) list.appendChild(filterBar);
 
   if (filtered.length === 0) {
-    list.innerHTML = `
+    list.innerHTML += `
       <div class="empty-state">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <p>No entries found.</p>
+        <p>No entries found for "${activeFilter}".</p>
       </div>`;
     return;
   }
@@ -220,7 +231,35 @@ const filtered = allEntries.filter(e => e.category === (categoryMap[tab] || tab)
     list.appendChild(buildCard(entry));
   });
 }
+function buildFilterBar(tab, filteredCount, totalCount) {
+  // Only show on tabs that support filtering
+  if (!['shops', 'facility', 'restaurant'].includes(tab)) return null;
+  if (!activeFilter) return null;
 
+  const bar = document.createElement('div');
+  bar.className = 'filter-bar';
+  bar.innerHTML = `
+    <div class="filter-active">
+      <span class="filter-tag-active">${activeFilter}</span>
+      <button class="filter-clear" onclick="clearFilter()">✕</button>
+    </div>
+    <span class="filter-count">Showing ${filteredCount} of ${totalCount}</span>
+  `;
+  return bar;
+}
+
+function setFilter(tag) {
+  activeFilter = tag;
+  renderCardTab(currentTab);
+  // Scroll back to top
+  document.getElementById('app-main').scrollTop = 0;
+}
+
+function clearFilter() {
+  activeFilter = null;
+  renderCardTab(currentTab);
+  document.getElementById('app-main').scrollTop = 0;
+}
 // ── BUILD A CARD ───────────────────────────────
 function buildCard(entry) {
   const card = document.createElement('div');
@@ -237,7 +276,7 @@ function buildCard(entry) {
 
   // ── Tags
   const tags = (entry.tags || []).filter(Boolean);
-  const tagsHtml = tags.map(t => `<span class="card-tag">${t}</span>`).join('');
+  const tagsHtml = tags.map(t => `<span class="card-tag" onclick="setFilter(this.getAttribute('data-tag'))" data-tag="${t}">${t}</span>`).join('');
 
   // ── Action buttons
   const hasPhone    = !!entry.phoneNumber;
@@ -412,10 +451,11 @@ function showState(state) {
 }
 
 // ── SERVICE WORKER ─────────────────────────────
-// function registerServiceWorker() {
-//   if ('serviceWorker' in navigator) {
-//     navigator.serviceWorker.register('service-worker.js')
-//       .then(() => console.log('Service Worker registered'))
-//       .catch(err => console.warn('Service Worker registration failed:', err));
-//   }
-// }
+function registerServiceWorker() {
+  // Temporarily disabled during development
+  // if ('serviceWorker' in navigator) {
+  //   navigator.serviceWorker.register('service-worker.js')
+  //     .then(() => console.log('Service Worker registered'))
+  //     .catch(err => console.warn('Service Worker registration failed:', err));
+  // }
+}

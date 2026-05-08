@@ -631,3 +631,60 @@ img { display: block; }
 .forecast-day-temps span {
   color: rgba(255,255,255,0.55);
 }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--green-muted);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 4px;
+}
+
+.filter-active {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-tag-active {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+  background: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--green);
+}
+
+.filter-clear {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--green);
+  color: white;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: var(--text-mid);
+}
+
+/* Make tags look tappable */
+.card-tag {
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.card-tag:active {
+  background: var(--green);
+  color: white;
+}
