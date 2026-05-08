@@ -170,8 +170,7 @@ async function loadData() {
   showState('loading');
   try {
     const res = await fetch(
-      'https://raw.githubusercontent.com/keithjmorris/burnham-market/main/data/data.json',
-      
+      'https://raw.githubusercontent.com/keithjmorris/burnham-market-data/main/data.json'
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
