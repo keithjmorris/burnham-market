@@ -18,6 +18,14 @@ const CONFIG = {
   FAIR_WINDOW_DAYS_AFTER:  30,
 };
 
+// ── EVENT LOCATIONS ────────────────────────────
+const EVENT_LOCATIONS = [
+  { name: 'The Green',           lat: 52.9455607, lng: 0.7245642 },
+  { name: 'Playing Field',       lat: 52.9433795, lng: 0.7305811 },
+  { name: 'Car Park',            lat: 52.9463878, lng: 0.7287411 },
+  { name: 'Other (no map pin)',  lat: null,        lng: null      },
+];
+
 // ── WEATHER ────────────────────────────────────
 const WMO_CODES = {
   0:  { label: 'Clear sky',        icon: '☀️' },
@@ -141,6 +149,11 @@ let currentTab  = 'shops';
 let map         = null;  // Leaflet map instance
 let activeFilter = null;
 let allEvents = [];
+let adminLoggedIn = false;
+let adminName     = '';
+let headerTapCount = 0;
+let headerTapTimer = null;
+let editingEventId = null;
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -583,6 +596,227 @@ function showState(state) {
   document.getElementById('error-state').classList.toggle('hidden', state !== 'error');
   document.getElementById('cards-list').classList.toggle('hidden', state !== 'cards');
   document.getElementById('map-view').classList.toggle('hidden', state !== 'map');
+}
+
+// ── ADMIN ──────────────────────────────────────
+function openAdmin() {
+  document.getElementById('admin-backdrop').classList.remove('hidden');
+  document.getElementById('admin-panel').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  if (!adminLoggedIn) {
+    document.getElementById('admin-login').classList.remove('hidden');
+    document.getElementById('admin-events').classList.add('hidden');
+  } else {
+    showAdminEvents();
+  }
+}
+
+function closeAdmin() {
+  document.getElementById('admin-backdrop').classList.add('hidden');
+  document.getElementById('admin-panel').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+async function submitLogin() {
+  const username = document.getElementById('admin-username').value.trim();
+  const password = document.getElementById('admin-password').value.trim();
+  const errorEl  = document.getElementById('admin-error');
+  errorEl.classList.add('hidden');
+
+  if (!username || !password) {
+    errorEl.textContent = 'Please enter your email and password';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      adminLoggedIn = true;
+      adminName     = `${data.firstName} ${data.lastName}`;
+      document.getElementById('admin-login').classList.add('hidden');
+      showAdminEvents();
+    } else {
+      errorEl.textContent = 'Invalid credentials — please try again';
+      errorEl.classList.remove('hidden');
+    }
+  } catch (err) {
+    errorEl.textContent = 'Connection error — please try again';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+function showAdminEvents() {
+  document.getElementById('admin-welcome').textContent = `Signed in as ${adminName}`;
+  document.getElementById('admin-events').classList.remove('hidden');
+  document.getElementById('admin-form').classList.add('hidden');
+  renderAdminEventsList();
+}
+
+function renderAdminEventsList() {
+  const list = document.getElementById('admin-events-list');
+  list.innerHTML = '';
+
+  if (allEvents.length === 0) {
+    list.innerHTML = '<p style="font-size:14px;color:var(--text-light);text-align:center;padding:20px 0">No events yet</p>';
+    return;
+  }
+
+  const sorted = [...allEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
+  sorted.forEach(event => {
+    const item = document.createElement('div');
+    item.className = 'admin-event-item';
+    const date = new Date(event.date).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    item.innerHTML = `
+      <div class="admin-event-item-info">
+        <p class="admin-event-item-title">${event.title}</p>
+        <p class="admin-event-item-date">${date} · ${event.time}</p>
+      </div>
+      <div class="admin-event-item-buttons">
+        <button class="admin-event-edit-btn" onclick="editEvent('${event.id}')">Edit</button>
+        <button class="admin-event-delete-btn" onclick="deleteEvent('${event.id}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function showNewEventForm() {
+  editingEventId = null;
+  document.getElementById('admin-form-title').textContent = 'New Event';
+  document.getElementById('admin-submit-btn').textContent = 'Post Event';
+  document.getElementById('event-title').value       = '';
+  document.getElementById('event-date').value        = '';
+  document.getElementById('event-time').value        = '';
+  document.getElementById('event-location-select').value = '';
+  document.getElementById('event-location-custom').classList.add('hidden');
+  document.getElementById('event-description').value = '';
+  document.getElementById('admin-word-count').textContent = '0 / 50 words';
+  document.getElementById('admin-form').classList.remove('hidden');
+}
+
+function editEvent(id) {
+  const event = allEvents.find(e => e.id === id);
+  if (!event) return;
+  editingEventId = id;
+  document.getElementById('admin-form-title').textContent = 'Edit Event';
+  document.getElementById('admin-submit-btn').textContent = 'Save Changes';
+  document.getElementById('event-title').value       = event.title;
+  document.getElementById('event-date').value        = event.date;
+  document.getElementById('event-time').value        = event.time;
+  document.getElementById('event-description').value = event.description;
+  checkWordCount();
+
+  // Set location dropdown
+  const select   = document.getElementById('event-location-select');
+  const knownLoc = EVENT_LOCATIONS.find(l => l.name === event.location);
+  if (knownLoc) {
+    select.value = event.location;
+    document.getElementById('event-location-custom').classList.add('hidden');
+  } else {
+    select.value = 'Other (no map pin)';
+    const custom = document.getElementById('event-location-custom');
+    custom.classList.remove('hidden');
+    custom.value = event.location;
+  }
+
+  document.getElementById('admin-form').classList.remove('hidden');
+  document.getElementById('admin-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function deleteEvent(id) {
+  if (!confirm('Are you sure you want to delete this event?')) return;
+  try {
+    const res = await fetch('/api/post-event', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      allEvents = data.events;
+      renderAdminEventsList();
+      renderEventsTab();
+    }
+  } catch (err) {
+    alert('Failed to delete event — please try again');
+  }
+}
+
+function cancelEventForm() {
+  document.getElementById('admin-form').classList.add('hidden');
+  editingEventId = null;
+}
+
+function handleLocationSelect() {
+  const select = document.getElementById('event-location-select');
+  const custom = document.getElementById('event-location-custom');
+  custom.classList.toggle('hidden', select.value !== 'Other (no map pin)');
+}
+
+function checkWordCount() {
+  const text  = document.getElementById('event-description').value.trim();
+  const words = text === '' ? 0 : text.split(/\s+/).length;
+  const el    = document.getElementById('admin-word-count');
+  el.textContent = `${words} / 50 words`;
+  el.classList.toggle('over', words > 50);
+}
+
+async function submitEvent() {
+  const title    = document.getElementById('event-title').value.trim();
+  const date     = document.getElementById('event-date').value;
+  const time     = document.getElementById('event-time').value.trim();
+  const locSelect = document.getElementById('event-location-select').value;
+  const locCustom = document.getElementById('event-location-custom').value.trim();
+  const desc     = document.getElementById('event-description').value.trim();
+
+  if (!title || !date || !time || !locSelect || !desc) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  const words = desc.split(/\s+/).length;
+  if (words > 50) {
+    alert('Description must be 50 words or fewer');
+    return;
+  }
+
+  // Get coordinates from location
+  const locData = EVENT_LOCATIONS.find(l => l.name === locSelect);
+  const location = locSelect === 'Other (no map pin)' ? locCustom : locSelect;
+  const lat = locData?.lat || null;
+  const lng = locData?.lng || null;
+
+  const eventData = { title, date, time, location, description: desc, latitude: lat, longitude: lng };
+
+  try {
+    const method = editingEventId ? 'PUT' : 'POST';
+    if (editingEventId) eventData.id = editingEventId;
+
+    const res = await fetch('/api/post-event', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventData)
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      allEvents = data.events;
+      cancelEventForm();
+      renderAdminEventsList();
+      renderEventsTab();
+    } else {
+      alert('Failed to save event — please try again');
+    }
+  } catch (err) {
+    alert('Connection error — please try again');
+  }
 }
 
 // ── SERVICE WORKER ─────────────────────────────

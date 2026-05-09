@@ -118,5 +118,50 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="app.js"></script>
+
+  <!-- ── ADMIN PANEL ── -->
+<div class="admin-backdrop hidden" id="admin-backdrop"></div>
+<div class="admin-panel hidden" id="admin-panel">
+  <div class="admin-header">
+    <h2 class="admin-title">Admin Panel</h2>
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+  </div>
+
+  <!-- Login Form -->
+  <div class="admin-login" id="admin-login">
+    <p class="admin-instructions">Sign in to manage events</p>
+    <input class="admin-input" type="email" id="admin-username" placeholder="Email address" />
+    <input class="admin-input" type="password" id="admin-password" placeholder="Password" />
+    <button class="admin-btn-primary" onclick="submitLogin()">Sign In</button>
+    <p class="admin-error hidden" id="admin-error">Invalid credentials — please try again</p>
+  </div>
+
+  <!-- Event Management -->
+  <div class="admin-events hidden" id="admin-events">
+    <p class="admin-welcome" id="admin-welcome"></p>
+
+    <!-- Event Form -->
+    <div class="admin-form" id="admin-form">
+      <h3 class="admin-form-title" id="admin-form-title">New Event</h3>
+      <input class="admin-input" type="text" id="event-title" placeholder="Event title" />
+      <input class="admin-input" type="date" id="event-date" />
+      <input class="admin-input" type="text" id="event-time" placeholder="Time e.g. 9am-1pm" />
+      <select class="admin-input" id="event-location-select" onchange="handleLocationSelect()">
+        <option value="">Select location...</option>
+      </select>
+      <input class="admin-input hidden" type="text" id="event-location-custom" placeholder="Enter location name" />
+      <textarea class="admin-input admin-textarea" id="event-description" placeholder="Description (50 words max)" rows="3" oninput="checkWordCount()"></textarea>
+      <p class="admin-word-count" id="admin-word-count">0 / 50 words</p>
+      <div class="admin-form-buttons">
+        <button class="admin-btn-secondary" onclick="cancelEventForm()">Cancel</button>
+        <button class="admin-btn-primary" id="admin-submit-btn" onclick="submitEvent()">Post Event</button>
+      </div>
+    </div>
+
+    <!-- Events List -->
+    <div class="admin-events-list" id="admin-events-list"></div>
+    <button class="admin-btn-primary" onclick="showNewEventForm()">+ New Event</button>
+  </div>
+</div>
 </body>
 </html>
