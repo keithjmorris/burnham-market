@@ -167,6 +167,30 @@ document.addEventListener('DOMContentLoaded', () => {
   loadWeather();
   registerServiceWorker();
   loadEvents();
+
+  // ── Secret tap sequence on header title ──
+  document.querySelector('.app-title').addEventListener('click', function(e) {
+    e.stopPropagation();
+    headerTapCount++;
+    clearTimeout(headerTapTimer);
+    headerTapTimer = setTimeout(() => {
+      headerTapCount = 0;
+    }, 3000);
+    if (headerTapCount >= 5) {
+      headerTapCount = 0;
+      clearTimeout(headerTapTimer);
+      openAdmin();
+    }
+  });
+
+  // ── Populate location dropdown ──
+  const select = document.getElementById('event-location-select');
+  EVENT_LOCATIONS.forEach(loc => {
+    const option = document.createElement('option');
+    option.value = loc.name;
+    option.textContent = loc.name;
+    select.appendChild(option);
+  });
 });
 
 
