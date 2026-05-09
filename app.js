@@ -309,6 +309,9 @@ function buildCard(entry) {
   const hasWebsite  = !!entry.website;
   const hasLocation = !!(entry.latitude && entry.longitude);
   const hasHours    = DAYS.some(d => entry.openingHours?.[d]);
+  const hasSocial   = !!entry.social;
+const isInstagram = hasSocial && entry.social.includes('instagram');
+const isFacebook  = hasSocial && entry.social.includes('facebook');
 
   card.innerHTML = `
     <div class="card-top">
@@ -320,27 +323,36 @@ function buildCard(entry) {
       </div>
     </div>
     <div class="card-actions">
-      <button class="card-action-btn ${hasPhone ? '' : 'disabled'}"
-        onclick="${hasPhone ? `callPhone('${entry.phoneNumber}')` : ''}" title="Call">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        Call
-      </button>
-      <button class="card-action-btn ${hasLocation ? '' : 'disabled'}"
-        onclick="${hasLocation ? `openDirections(${entry.latitude},${entry.longitude},'${encodeURIComponent(entry.name)}')` : ''}" title="Directions">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-        Directions
-      </button>
-      <button class="card-action-btn ${hasWebsite ? '' : 'disabled'}"
-        onclick="${hasWebsite ? `openWebsite('${entry.website}')` : ''}" title="Website">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        Website
-      </button>
-      <button class="card-action-btn ${hasHours ? '' : 'disabled'}"
-        onclick="${hasHours ? `openHoursSheet('${entry.id}')` : ''}" title="Opening hours">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Hours
-      </button>
-    </div>
+  <button class="card-action-btn ${hasPhone ? '' : 'disabled'}"
+    onclick="${hasPhone ? `callPhone('${entry.phoneNumber}')` : ''}" title="Call">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Call
+  </button>
+  <button class="card-action-btn ${hasLocation ? '' : 'disabled'}"
+    onclick="${hasLocation ? `openDirections(${entry.latitude},${entry.longitude},'${encodeURIComponent(entry.name)}')` : ''}" title="Directions">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    Directions
+  </button>
+  <button class="card-action-btn ${hasWebsite ? '' : 'disabled'}"
+    onclick="${hasWebsite ? `openWebsite('${entry.website}')` : ''}" title="Website">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    Website
+  </button>
+  <button class="card-action-btn ${hasHours ? '' : 'disabled'}"
+    onclick="${hasHours ? `openHoursSheet('${entry.id}')` : ''}" title="Opening hours">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Hours
+  </button>
+  <button class="card-action-btn ${hasSocial ? '' : 'disabled'}"
+    onclick="${hasSocial ? `openWebsite('${entry.social}')` : ''}" title="Social media">
+    ${isInstagram ? `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+    ` : `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+    `}
+    Social
+  </button>
+</div>
   `;
 
   return card;
