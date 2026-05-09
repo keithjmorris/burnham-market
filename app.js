@@ -245,7 +245,7 @@ function renderTab(tab) {
 function renderCardTab(tab) {
   // Show weather card only on shops and restaurant tabs
   const weatherCard = document.getElementById('weather-card');
-  weatherCard.classList.toggle('hidden', !['shops', 'restaurant', 'facility'].includes(tab));
+  weatherCard.classList.toggle('hidden', !['shops', 'restaurant', 'facility', 'whatson'].includes(tab));
 
   showState('cards');
   const list = document.getElementById('cards-list');
@@ -280,7 +280,9 @@ function renderCardTab(tab) {
 // ── EVENTS TAB ─────────────────────────────────
 function renderEventsTab() {
   // Hide weather card
-  document.getElementById('weather-card').classList.add('hidden');
+  // Show weather card on What's On tab
+const weatherCard = document.getElementById('weather-card');
+weatherCard.classList.toggle('hidden', false);
   showState('cards');
 
   const list = document.getElementById('cards-list');
