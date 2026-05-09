@@ -687,3 +687,145 @@ img { display: block; }
   background: var(--green);
   color: white;
 }
+
+/* ── SMALLER TEXT FOR LONGER TAB LABELS ── */
+.tab-item[data-tab="parking"] span {
+  font-size: 9px;
+}
+
+/* ── WHAT'S ON TAB LABEL ── */
+.tab-item[data-tab="whatson"] span {
+  font-size: 9px;
+}
+
+/* ── EVENT CARDS ── */
+.event-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: cardIn 0.35s ease both;
+}
+
+.event-header {
+  background: var(--green);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  min-width: 48px;
+}
+
+.event-date-day {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1;
+}
+
+.event-date-month {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.event-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  flex: 1;
+  margin-left: 14px;
+  line-height: 1.2;
+}
+
+.event-body {
+  padding: 14px 16px;
+}
+
+.event-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.event-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.event-meta-item svg {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-light);
+  flex-shrink: 0;
+}
+
+.event-description {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.event-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--cream-dark);
+  padding-top: 12px;
+}
+
+.event-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: var(--green-muted);
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: background 0.15s ease;
+}
+
+.event-action-btn:active {
+  background: var(--sand-light);
+}
+
+.event-action-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--green);
+}
+
+.event-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  color: var(--text-light);
+}
+
+.event-empty svg { opacity: 0.4; }
+.event-empty p { font-size: 15px; }

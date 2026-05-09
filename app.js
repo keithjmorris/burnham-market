@@ -140,6 +140,7 @@ let allEntries  = [];    // all records from JSONBin
 let currentTab  = 'shops';
 let map         = null;  // Leaflet map instance
 let activeFilter = null;
+let allEvents = [];
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -152,7 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadData();
   loadWeather();
   registerServiceWorker();
+  loadEvents();
 });
+
 
 // ── FAIR TAB VISIBILITY ────────────────────────
 function checkFairTab() {
@@ -183,6 +186,20 @@ async function loadData() {
   }
 }
 
+// ── EVENTS LOADING ─────────────────────────────
+async function loadEvents() {
+  try {
+    const res = await fetch(
+      'https://raw.githubusercontent.com/keithjmorris/burnham-market-data/main/events.json'
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    allEvents = await res.json();
+  } catch (err) {
+    console.warn('Failed to load events:', err);
+    allEvents = [];
+  }
+}
+
 // ── TAB SWITCHING ──────────────────────────────
 function switchTab(tab) {
   currentTab = tab;
@@ -194,20 +211,20 @@ function switchTab(tab) {
 
   // Update header subtitle
   const subtitles = {
-    shops:      'Shops',
-    restaurant: 'Eat & Drink',
-    facility:   'Facilities',
-    parking:    'Parking',
-    toilets:    'Public Toilets',
-    fair:       'The Fair',
-  };
+  shops:      'Shops',
+  restaurant: 'Eat & Drink',
+  facility:   'Facilities',
+  parking:    'Parking & Public Toilets',
+  fair:       'BM Craft Fair',
+  whatson: "What's On",
+};
   document.getElementById('header-subtitle').textContent = subtitles[tab] || 'Village Guide';
 
   // Destroy map if switching away from map tabs
-  if (!['parking','toilets'].includes(tab) && map) {
-    map.remove();
-    map = null;
-  }
+  if (tab !== 'parking' && map) {
+  map.remove();
+  map = null;
+}
 
   activeFilter = null;
 renderTab(tab);
@@ -215,8 +232,10 @@ renderTab(tab);
 
 // ── RENDER DISPATCHER ─────────────────────────
 function renderTab(tab) {
-  if (tab === 'parking' || tab === 'toilets') {
+  if (tab === 'parking') {
     renderMapTab(tab);
+  } else if (tab === 'whatson') {
+    renderEventsTab();
   } else {
     renderCardTab(tab);
   }
@@ -256,6 +275,83 @@ function renderCardTab(tab) {
   filtered.forEach(entry => {
     list.appendChild(buildCard(entry));
   });
+}
+
+// ── EVENTS TAB ─────────────────────────────────
+function renderEventsTab() {
+  // Hide weather card
+  document.getElementById('weather-card').classList.add('hidden');
+  showState('cards');
+
+  const list = document.getElementById('cards-list');
+  list.innerHTML = '';
+
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  // Filter out events more than 2 days old
+  const twoDaysAgo = new Date(now);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+  const upcoming = allEvents
+    .filter(e => new Date(e.date) >= twoDaysAgo)
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (upcoming.length === 0) {
+    list.innerHTML = `
+      <div class="event-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>No upcoming events at the moment.</p>
+      </div>`;
+    return;
+  }
+
+  upcoming.forEach(event => {
+    list.appendChild(buildEventCard(event));
+  });
+}
+
+function buildEventCard(event) {
+  const card = document.createElement('div');
+  card.className = 'event-card';
+
+  const date     = new Date(event.date);
+  const day      = date.getDate();
+  const month    = date.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
+  const weekday  = date.toLocaleString('en-GB', { weekday: 'long' });
+  const hasLocation = !!(event.latitude && event.longitude);
+
+  card.innerHTML = `
+    <div class="event-header">
+      <div class="event-date">
+        <span class="event-date-day">${day}</span>
+        <span class="event-date-month">${month}</span>
+      </div>
+      <span class="event-title">${event.title}</span>
+    </div>
+    <div class="event-body">
+      <div class="event-meta">
+        <div class="event-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${weekday} ${event.time}
+        </div>
+        <div class="event-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${event.location}
+        </div>
+      </div>
+      <p class="event-description">${event.description}</p>
+      <div class="event-actions">
+        ${hasLocation ? `
+        <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Directions
+        </button>` : ''}
+      </div>
+    </div>
+  `;
+
+  return card;
 }
 function buildFilterBar(tab, filteredCount, totalCount) {
   // Only show on tabs that support filtering
@@ -366,7 +462,6 @@ function placeholderSVG() {
 function renderMapTab(tab) {
   showState('map');
 
-  // Allow Leaflet to measure the container
   setTimeout(() => {
     if (!map) {
       map = L.map('map-container').setView(CONFIG.MAP_CENTRE, CONFIG.MAP_ZOOM);
@@ -376,19 +471,19 @@ function renderMapTab(tab) {
       }).addTo(map);
     } else {
       map.setView(CONFIG.MAP_CENTRE, CONFIG.MAP_ZOOM);
-      map.eachLayer(layer => { if (layer instanceof L.Marker) map.removeLayer(layer); });
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker) map.removeLayer(layer);
+      });
     }
 
     const legend = document.getElementById('map-legend');
     legend.innerHTML = '';
 
-    if (tab === 'parking') {
-      addMapMarkers('parking', '#2C4A3E', '🅿');
-      addLegendItem(legend, '#2C4A3E', 'Car Park');
-    } else if (tab === 'toilets') {
-      addMapMarkers('toilets', '#4A7C8E', '🚻');
-      addLegendItem(legend, '#4A7C8E', 'Public Toilets');
-    }
+    // Show both parking and toilet pins together
+    addMapMarkers('parking', '#2C4A3E', '🅿');
+    addMapMarkers('toilets', '#4A7C8E', '🚻');
+    addLegendItem(legend, '#2C4A3E', 'Car Park');
+    addLegendItem(legend, '#4A7C8E', 'Public Toilets');
 
     map.invalidateSize();
   }, 50);
