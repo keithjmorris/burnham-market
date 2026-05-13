@@ -1038,3 +1038,32 @@ img { display: block; }
   background: #fee2e2;
   color: #e53e3e;
 }
+
+/* ── SORT BAR ── */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sort-label {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.sort-btn {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  padding: 5px 12px;
+  border-radius: 20px;
+  color: var(--text-mid);
+  background: var(--cream-dark);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sort-btn.active {
+  background: var(--green);
+  color: white;
+}

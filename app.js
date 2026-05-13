@@ -18,12 +18,15 @@ const CONFIG = {
   FAIR_WINDOW_DAYS_AFTER:  30,
 };
 
-// ── EVENT LOCATIONS ────────────────────────────
 const EVENT_LOCATIONS = [
-  { name: 'The Green',           lat: 52.9455607, lng: 0.7245642 },
-  { name: 'Playing Field',       lat: 52.9433795, lng: 0.7305811 },
-  { name: 'Car Park',            lat: 52.9463878, lng: 0.7287411 },
-  { name: 'Other (no map pin)',  lat: null,        lng: null      },
+  { name: 'Village Green',        lat: 52.9451813, lng: 0.7234069 },
+  { name: 'Playing Field',        lat: 52.9444178, lng: 0.729474  },
+  { name: 'Tennis Club',          lat: 52.9447369, lng: 0.7282327 },
+  { name: 'St. Mary\'s Church',   lat: 52.9450112, lng: 0.7225797 },
+  { name: 'All Saints Church',    lat: 52.9460791, lng: 0.7303801 },
+  { name: 'St. Margaret\'s Church', lat: 52.9506806, lng: 0.7303011 },
+  { name: 'Village Hall',         lat: 52.9413887, lng: 0.7318252 },
+  { name: 'Other',                lat: null,        lng: null      },
 ];
 
 // ── WEATHER ────────────────────────────────────
@@ -154,6 +157,7 @@ let adminName     = '';
 let headerTapCount = 0;
 let headerTapTimer = null;
 let editingEventId = null;
+let eventSortOrder = 'date';
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -316,10 +320,8 @@ function renderCardTab(tab) {
 
 // ── EVENTS TAB ─────────────────────────────────
 function renderEventsTab() {
-  // Hide weather card
-  // Show weather card on What's On tab
-const weatherCard = document.getElementById('weather-card');
-weatherCard.classList.toggle('hidden', false);
+  const weatherCard = document.getElementById('weather-card');
+  weatherCard.classList.toggle('hidden', false);
   showState('cards');
 
   const list = document.getElementById('cards-list');
@@ -327,17 +329,31 @@ weatherCard.classList.toggle('hidden', false);
 
   const now = new Date();
   now.setHours(0, 0, 0, 0);
-
-  // Filter out events more than 2 days old
   const twoDaysAgo = new Date(now);
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-  const upcoming = allEvents
-    .filter(e => new Date(e.date) >= twoDaysAgo)
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  let upcoming = allEvents.filter(e => new Date(e.date) >= twoDaysAgo);
+
+  // Apply sort order
+  if (eventSortOrder === 'date') {
+    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+  // 'posted' order uses the natural array order from events.json
+
+  // Add sort toggle bar
+  const sortBar = document.createElement('div');
+  sortBar.className = 'sort-bar';
+  sortBar.innerHTML = `
+    <span class="sort-label">Sort by:</span>
+    <button class="sort-btn ${eventSortOrder === 'date' ? 'active' : ''}" 
+      onclick="setSortOrder('date')">Date</button>
+    <button class="sort-btn ${eventSortOrder === 'posted' ? 'active' : ''}" 
+      onclick="setSortOrder('posted')">Recently Added</button>
+  `;
+  list.appendChild(sortBar);
 
   if (upcoming.length === 0) {
-    list.innerHTML = `
+    list.innerHTML += `
       <div class="event-empty">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <p>No upcoming events at the moment.</p>
@@ -348,6 +364,12 @@ weatherCard.classList.toggle('hidden', false);
   upcoming.forEach(event => {
     list.appendChild(buildEventCard(event));
   });
+}
+
+function setSortOrder(order) {
+  eventSortOrder = order;
+  renderEventsTab();
+  document.getElementById('app-main').scrollTop = 0;
 }
 
 function buildEventCard(event) {
@@ -744,7 +766,7 @@ function editEvent(id) {
     select.value = event.location;
     document.getElementById('event-location-custom').classList.add('hidden');
   } else {
-    select.value = 'Other (no map pin)';
+    select.value = 'Other';
     const custom = document.getElementById('event-location-custom');
     custom.classList.remove('hidden');
     custom.value = event.location;
@@ -781,7 +803,7 @@ function cancelEventForm() {
 function handleLocationSelect() {
   const select = document.getElementById('event-location-select');
   const custom = document.getElementById('event-location-custom');
-  custom.classList.toggle('hidden', select.value !== 'Other (no map pin)');
+  custom.classList.toggle('hidden', select.value !== 'Other');
 }
 
 function checkWordCount() {
@@ -813,7 +835,7 @@ async function submitEvent() {
 
   // Get coordinates from location
   const locData = EVENT_LOCATIONS.find(l => l.name === locSelect);
-  const location = locSelect === 'Other (no map pin)' ? locCustom : locSelect;
+  const location = locSelect === 'Other' ? locCustom : locSelect;
   const lat = locData?.lat || null;
   const lng = locData?.lng || null;
 
