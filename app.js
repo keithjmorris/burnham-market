@@ -157,8 +157,9 @@ let adminName     = '';
 let headerTapCount = 0;
 let headerTapTimer = null;
 let editingEventId = null;
-let eventSortOrder = 'date';
-let eventSubTab = 'oneoff';
+ortOrder = 'date';
+let eventSortOrder   = 'date';
+let eventTypeFilter  = 'all';
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -328,22 +329,79 @@ function renderEventsTab() {
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
 
-  // â”€â”€ Sub-tab bar
-  const subTabBar = document.createElement('div');
-  subTabBar.className = 'event-subtab-bar';
-  subTabBar.innerHTML = `
-    <button class="event-subtab ${eventSubTab === 'oneoff' ? 'active' : ''}"
-      onclick="setEventSubTab('oneoff')">One-off Events</button>
-    <button class="event-subtab ${eventSubTab === 'recurring' ? 'active' : ''}"
-      onclick="setEventSubTab('recurring')">Regular Events</button>
-  `;
-  list.appendChild(subTabBar);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const twoDaysAgo = new Date(now);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-  if (eventSubTab === 'oneoff') {
-    renderOneOffEvents(list);
-  } else {
-    renderRecurringEvents(list);
+  // Build display list â€” one entry per event
+  // For recurring events, calculate next occurrence and use that as the sort date
+  let displayEvents = [];
+
+  allEvents.forEach(e => {
+    if (!e.type || e.type === 'one-off') {
+      // One-off: include if date is within range
+      if (new Date(e.date) >= twoDaysAgo) {
+        displayEvents.push({ ...e, _sortDate: new Date(e.date) });
+      }
+    } else if (e.type === 'recurring') {
+      // Recurring: include if end date hasn't passed (or no end date)
+      if (!e.endDate || new Date(e.endDate) >= now) {
+        const next = nextOccurrence(e);
+        displayEvents.push({ ...e, _sortDate: next, _nextDate: next });
+      }
+    }
+  });
+
+  // â”€â”€ Filter bar
+  const filterBar = document.createElement('div');
+  filterBar.className = 'sort-bar';
+  filterBar.innerHTML = `
+    <span class="sort-label">Sort by:</span>
+    <button class="sort-btn ${eventSortOrder === 'date' ? 'active' : ''}"
+      onclick="setSortOrder('date')">Date</button>
+    <button class="sort-btn ${eventSortOrder === 'posted' ? 'active' : ''}"
+      onclick="setSortOrder('posted')">Recently Added</button>
+    <span style="flex:1"></span>
+    <button class="sort-btn ${eventTypeFilter === 'all' ? 'active' : ''}"
+      onclick="setEventTypeFilter('all')">All</button>
+    <button class="sort-btn ${eventTypeFilter === 'one-off' ? 'active' : ''}"
+      onclick="setEventTypeFilter('one-off')">One-off</button>
+    <button class="sort-btn ${eventTypeFilter === 'recurring' ? 'active' : ''}"
+      onclick="setEventTypeFilter('recurring')">Regular</button>
+  `;
+  list.appendChild(filterBar);
+
+  // Apply type filter
+  if (eventTypeFilter !== 'all') {
+    displayEvents = displayEvents.filter(e => {
+      const type = e.type || 'one-off';
+      return type === eventTypeFilter;
+    });
   }
+
+  // Apply sort
+  if (eventSortOrder === 'date') {
+    displayEvents.sort((a, b) => a._sortDate - b._sortDate);
+  }
+  // 'posted' uses natural array order (already preserved above)
+
+  if (displayEvents.length === 0) {
+    list.innerHTML += `
+      <div class="event-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>No upcoming events at the moment.</p>
+      </div>`;
+    return;
+  }
+
+  displayEvents.forEach(event => {
+    if (event.type === 'recurring') {
+      list.appendChild(buildRecurringEventCard(event));
+    } else {
+      list.appendChild(buildEventCard(event));
+    }
+  });
 }
 
 function setEventSubTab(tab) {
@@ -473,6 +531,12 @@ function setSortOrder(order) {
   document.getElementById('app-main').scrollTop = 0;
 }
 
+function setEventTypeFilter(filter) {
+  eventTypeFilter = filter;
+  renderEventsTab();
+  document.getElementById('app-main').scrollTop = 0;
+}
+
 function buildEventCard(event) {
   const card = document.createElement('div');
   card.className = 'event-card';
@@ -517,34 +581,34 @@ function buildEventCard(event) {
 
 function buildRecurringEventCard(event) {
   const card = document.createElement('div');
-  card.className = 'event-card event-card-recurring';
+  card.className = 'event-card';
 
+  const next    = event._nextDate || nextOccurrence(event);
+  const day     = next.getDate();
+  const month   = next.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
+  const weekday = next.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
-  const next = nextOccurrence(event);
-  const nextDay  = next.getDate();
-  const nextMonth = next.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
-  const untilLabel = daysUntilLabel(event);
-  const freqLabel  = frequencyLabel(event);
+  const freqLabel   = frequencyLabel(event);
 
   let dateRangeHtml = '';
-  if (event.startDate || event.endDate) {
-    const parts = [];
-    if (event.startDate) parts.push(`From ${new Date(event.startDate).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}`);
-    if (event.endDate)   parts.push(`Until ${new Date(event.endDate).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}`);
-    dateRangeHtml = `<div class="event-meta-item event-date-range">
+  if (event.endDate) {
+    const until = new Date(event.endDate).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    dateRangeHtml = `<div class="event-meta-item" style="font-size:12px;opacity:0.7;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      ${parts.join(' Â· ')}
+      Until ${until}
     </div>`;
   }
 
   card.innerHTML = `
     <div class="event-header">
-      <div class="event-date event-date-recurring">
-        <span class="event-date-day">${nextDay}</span>
-        <span class="event-date-month">${nextMonth}</span>
-        <span class="event-date-next">${untilLabel}</span>
+      <div class="event-date">
+        <span class="event-date-day">${day}</span>
+        <span class="event-date-month">${month}</span>
       </div>
-      <span class="event-title">${event.title}</span>
+      <div style="flex:1;min-width:0;">
+        <span class="event-title">${event.title}</span>
+        <span style="display:inline-block;margin-left:8px;font-size:10px;background:#e0ebe6;color:#2C4A3E;padding:2px 6px;border-radius:4px;font-weight:600;text-transform:uppercase;vertical-align:middle;">Regular</span>
+      </div>
     </div>
     <div class="event-body">
       <div class="event-meta">
