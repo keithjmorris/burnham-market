@@ -140,23 +140,161 @@
   <div class="admin-events hidden" id="admin-events">
     <p class="admin-welcome" id="admin-welcome"></p>
 
-    <!-- Event Form -->
-    <div class="admin-form" id="admin-form">
-      <h3 class="admin-form-title" id="admin-form-title">New Event</h3>
-      <input class="admin-input" type="text" id="event-title" placeholder="Event title" />
-      <input class="admin-input" type="date" id="event-date" />
-      <input class="admin-input" type="text" id="event-time" placeholder="Time e.g. 9am-1pm" />
-      <select class="admin-input" id="event-location-select" onchange="handleLocationSelect()">
-        <option value="">Select location...</option>
-      </select>
-      <input class="admin-input hidden" type="text" id="event-location-custom" placeholder="Enter location name" />
-      <textarea class="admin-input admin-textarea" id="event-description" placeholder="Description (50 words max)" rows="3" oninput="checkWordCount()"></textarea>
-      <p class="admin-word-count" id="admin-word-count">0 / 50 words</p>
-      <div class="admin-form-buttons">
-        <button class="admin-btn-secondary" onclick="cancelEventForm()">Cancel</button>
-        <button class="admin-btn-primary" id="admin-submit-btn" onclick="submitEvent()">Post Event</button>
-      </div>
+    <div id="admin-form" class="hidden">
+  <p id="admin-form-title" style="font-weight:600;margin-bottom:12px;">New Event</p>
+
+  <!-- Event type toggle -->
+  <div class="admin-field" style="margin-bottom:12px;">
+    <label style="font-size:13px;font-weight:500;display:block;margin-bottom:6px;">Event type</label>
+    <div style="display:flex;gap:12px;">
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="radio" name="event-type" id="event-type-oneoff" value="oneoff" checked onchange="toggleEventTypeFields()" />
+        One-off
+      </label>
+      <label style="font-size:13px;display:flex;align-items:center;gap:6px;cursor:pointer;">
+        <input type="radio" name="event-type" id="event-type-recurring" value="recurring" onchange="toggleEventTypeFields()" />
+        Regular / Recurring
+      </label>
     </div>
+  </div>
+
+  <!-- Title (shared) -->
+  <div class="admin-field">
+    <label class="admin-label">Title</label>
+    <input class="admin-input" type="text" id="event-title" placeholder="Event title" maxlength="80" />
+  </div>
+
+  <!-- One-off specific fields -->
+  <div id="event-oneoff-fields">
+    <div class="admin-field">
+      <label class="admin-label">Date</label>
+      <input class="admin-input" type="date" id="event-date" />
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">Time</label>
+      <input class="admin-input" type="text" id="event-time" placeholder="e.g. 10amâ€“4pm" />
+    </div>
+  </div>
+
+  <!-- Recurring specific fields -->
+  <div id="event-recurring-fields" class="hidden">
+    <div class="admin-field">
+      <label class="admin-label">Day of week</label>
+      <select class="admin-input" id="event-day-of-week">
+        <option value="">Select dayâ€¦</option>
+        <option value="monday">Monday</option>
+        <option value="tuesday">Tuesday</option>
+        <option value="wednesday">Wednesday</option>
+        <option value="thursday">Thursday</option>
+        <option value="friday">Friday</option>
+        <option value="saturday">Saturday</option>
+        <option value="sunday">Sunday</option>
+      </select>
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">Time</label>
+      <input class="admin-input" type="text" id="event-recurring-time" placeholder="e.g. 10am" />
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">Frequency</label>
+      <select class="admin-input" id="event-frequency">
+        <option value="weekly">Weekly</option>
+        <option value="fortnightly">Fortnightly</option>
+        <option value="monthly">Monthly (same day each month)</option>
+      </select>
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">Start date <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+      <input class="admin-input" type="date" id="event-start-date" />
+    </div>
+    <div class="admin-field">
+      <label class="admin-label">End date <span style="font-weight:400;opacity:0.6">(optional â€” event disappears after this)</span></label>
+      <input class="admin-input" type="date" id="event-end-date" />
+    </div>
+  </div>
+
+  <!-- Location (shared) -->
+  <div class="admin-field">
+    <label class="admin-label">Location</label>
+    <select class="admin-input" id="event-location-select" onchange="handleLocationSelect()">
+      <option value="">Select location...</option>
+    </select>
+    <input class="admin-input hidden" type="text" id="event-location-custom" placeholder="Enter location" style="margin-top:6px;" />
+  </div>
+
+  <!-- Description (shared) -->
+  <div class="admin-field">
+    <label class="admin-label">Description</label>
+    <textarea class="admin-input" id="event-description" rows="3" placeholder="Brief description (max 50 words)" oninput="checkWordCount()"></textarea>
+    <p id="admin-word-count" style="font-size:11px;color:var(--text-light);text-align:right;margin-top:2px;">0 / 50 words</p>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button class="admin-cancel-btn" onclick="cancelEventForm()">Cancel</button>
+    <button class="admin-submit-btn" id="admin-submit-btn" onclick="submitEvent()">Post Event</button>
+  </div>
+</div>
+
+
+<!-- CHANGE 2: Add these CSS rules to your style.css or the <style> block in index.html -->
+<style>
+/* Event sub-tabs */
+.event-subtab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.event-subtab {
+  flex: 1;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.event-subtab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Recurring event card date badge */
+.event-date-recurring {
+  min-width: 44px;
+}
+
+.event-date-next {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.event-date-range {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* Recurring card slight visual distinction */
+.event-card-recurring {
+  border-left: 3px solid var(--primary);
+}
+</style>
+
 
     <!-- Events List -->
     <div class="admin-events-list" id="admin-events-list"></div>

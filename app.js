@@ -158,6 +158,7 @@ let headerTapCount = 0;
 let headerTapTimer = null;
 let editingEventId = null;
 let eventSortOrder = 'date';
+let eventSubTab = 'oneoff';
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -327,30 +328,55 @@ function renderEventsTab() {
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
 
+  // â”€â”€ Sub-tab bar
+  const subTabBar = document.createElement('div');
+  subTabBar.className = 'event-subtab-bar';
+  subTabBar.innerHTML = `
+    <button class="event-subtab ${eventSubTab === 'oneoff' ? 'active' : ''}"
+      onclick="setEventSubTab('oneoff')">One-off Events</button>
+    <button class="event-subtab ${eventSubTab === 'recurring' ? 'active' : ''}"
+      onclick="setEventSubTab('recurring')">Regular Events</button>
+  `;
+  list.appendChild(subTabBar);
+
+  if (eventSubTab === 'oneoff') {
+    renderOneOffEvents(list);
+  } else {
+    renderRecurringEvents(list);
+  }
+}
+
+function setEventSubTab(tab) {
+  eventSubTab = tab;
+  renderEventsTab();
+  document.getElementById('app-main').scrollTop = 0;
+}
+
+function renderOneOffEvents(list) {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   const twoDaysAgo = new Date(now);
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-  let upcoming = allEvents.filter(e => new Date(e.date) >= twoDaysAgo);
+  let upcoming = allEvents.filter(e =>
+    (!e.type || e.type === 'one-off') && new Date(e.date) >= twoDaysAgo
+  );
 
-  // Apply sort order
-  if (eventSortOrder === 'date') {
-    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  // 'posted' order uses the natural array order from events.json
-
-  // Add sort toggle bar
+  // Sort bar
   const sortBar = document.createElement('div');
   sortBar.className = 'sort-bar';
   sortBar.innerHTML = `
     <span class="sort-label">Sort by:</span>
-    <button class="sort-btn ${eventSortOrder === 'date' ? 'active' : ''}" 
+    <button class="sort-btn ${eventSortOrder === 'date' ? 'active' : ''}"
       onclick="setSortOrder('date')">Date</button>
-    <button class="sort-btn ${eventSortOrder === 'posted' ? 'active' : ''}" 
+    <button class="sort-btn ${eventSortOrder === 'posted' ? 'active' : ''}"
       onclick="setSortOrder('posted')">Recently Added</button>
   `;
   list.appendChild(sortBar);
+
+  if (eventSortOrder === 'date') {
+    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
 
   if (upcoming.length === 0) {
     list.innerHTML += `
@@ -361,11 +387,86 @@ function renderEventsTab() {
     return;
   }
 
-  upcoming.forEach(event => {
-    list.appendChild(buildEventCard(event));
-  });
+  upcoming.forEach(event => list.appendChild(buildEventCard(event)));
 }
 
+function renderRecurringEvents(list) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let recurring = allEvents.filter(e => e.type === 'recurring');
+
+  // Filter out events whose endDate has passed
+  recurring = recurring.filter(e => {
+    if (!e.endDate) return true;
+    return new Date(e.endDate) >= today;
+  });
+
+  // Filter out events that haven't started yet? No â€” show them so people can plan ahead.
+  // Sort by next occurrence
+  recurring.sort((a, b) => nextOccurrence(a) - nextOccurrence(b));
+
+  if (recurring.length === 0) {
+    list.innerHTML += `
+      <div class="event-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>No regular events listed at the moment.</p>
+      </div>`;
+    return;
+  }
+
+  recurring.forEach(event => list.appendChild(buildRecurringEventCard(event)));
+}
+
+// Returns the next Date object for a recurring event from today
+function nextOccurrence(event) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+  const targetDay = dayNames.indexOf(event.dayOfWeek.toLowerCase());
+  if (targetDay === -1) return today;
+
+  const next = new Date(today);
+  const todayDay = next.getDay();
+  let daysUntil = (targetDay - todayDay + 7) % 7;
+
+  // If fortnightly, we need to check against startDate to find the right week
+  if (event.frequency === 'fortnightly' && event.startDate) {
+    const start = new Date(event.startDate);
+    start.setHours(0,0,0,0);
+    // Find next candidate
+    const candidate = new Date(today);
+    candidate.setDate(today.getDate() + daysUntil);
+    // Check if it falls on an even or odd week from start
+    const weeksDiff = Math.round((candidate - start) / (7 * 24 * 60 * 60 * 1000));
+    if (weeksDiff % 2 !== 0) {
+      // Not this week, add 7 more days
+      candidate.setDate(candidate.getDate() + 7);
+    }
+    return candidate;
+  }
+
+  next.setDate(next.getDate() + daysUntil);
+  return next;
+}
+
+function daysUntilLabel(event) {
+  const next = nextOccurrence(event);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diff = Math.round((next - today) / (24 * 60 * 60 * 1000));
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  if (diff < 7) return `In ${diff} days`;
+  return next.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' });
+}
+
+function frequencyLabel(event) {
+  const day = event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1);
+  const freq = event.frequency === 'fortnightly' ? 'Every other' : 'Every';
+  return `${freq} ${day} at ${event.time}`;
+}
 function setSortOrder(order) {
   eventSortOrder = order;
   renderEventsTab();
@@ -376,10 +477,10 @@ function buildEventCard(event) {
   const card = document.createElement('div');
   card.className = 'event-card';
 
-  const date     = new Date(event.date);
-  const day      = date.getDate();
-  const month    = date.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
-  const weekday  = date.toLocaleString('en-GB', { weekday: 'long' });
+  const date    = new Date(event.date);
+  const day     = date.getDate();
+  const month   = date.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
+  const weekday = date.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
 
   card.innerHTML = `
@@ -411,7 +512,62 @@ function buildEventCard(event) {
       </div>
     </div>
   `;
+  return card;
+}
 
+function buildRecurringEventCard(event) {
+  const card = document.createElement('div');
+  card.className = 'event-card event-card-recurring';
+
+  const hasLocation = !!(event.latitude && event.longitude);
+  const next = nextOccurrence(event);
+  const nextDay  = next.getDate();
+  const nextMonth = next.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
+  const untilLabel = daysUntilLabel(event);
+  const freqLabel  = frequencyLabel(event);
+
+  let dateRangeHtml = '';
+  if (event.startDate || event.endDate) {
+    const parts = [];
+    if (event.startDate) parts.push(`From ${new Date(event.startDate).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}`);
+    if (event.endDate)   parts.push(`Until ${new Date(event.endDate).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}`);
+    dateRangeHtml = `<div class="event-meta-item event-date-range">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      ${parts.join(' Â· ')}
+    </div>`;
+  }
+
+  card.innerHTML = `
+    <div class="event-header">
+      <div class="event-date event-date-recurring">
+        <span class="event-date-day">${nextDay}</span>
+        <span class="event-date-month">${nextMonth}</span>
+        <span class="event-date-next">${untilLabel}</span>
+      </div>
+      <span class="event-title">${event.title}</span>
+    </div>
+    <div class="event-body">
+      <div class="event-meta">
+        <div class="event-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          ${freqLabel}
+        </div>
+        <div class="event-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${event.location}
+        </div>
+        ${dateRangeHtml}
+      </div>
+      <p class="event-description">${event.description}</p>
+      <div class="event-actions">
+        ${hasLocation ? `
+        <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Directions
+        </button>` : ''}
+      </div>
+    </div>
+  `;
   return card;
 }
 function buildFilterBar(tab, filteredCount, totalCount) {
@@ -714,15 +870,35 @@ function renderAdminEventsList() {
     return;
   }
 
-  const sorted = [...allEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
-  sorted.forEach(event => {
+  const oneOff    = allEvents.filter(e => !e.type || e.type === 'one-off')
+                              .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const recurring = allEvents.filter(e => e.type === 'recurring')
+                              .sort((a, b) => {
+                                const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+                                return days.indexOf(a.dayOfWeek) - days.indexOf(b.dayOfWeek);
+                              });
+
+  const allSorted = [...oneOff, ...recurring];
+
+  allSorted.forEach(event => {
     const item = document.createElement('div');
     item.className = 'admin-event-item';
-    const date = new Date(event.date).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+
+    let dateStr;
+    if (event.type === 'recurring') {
+      const day = event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1);
+      const freq = event.frequency === 'fortnightly' ? 'Every other' : 'Every';
+      dateStr = `${freq} ${day} Â· ${event.time}`;
+    } else {
+      dateStr = new Date(event.date).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) + ` Â· ${event.time}`;
+    }
+
     item.innerHTML = `
       <div class="admin-event-item-info">
-        <p class="admin-event-item-title">${event.title}</p>
-        <p class="admin-event-item-date">${date} · ${event.time}</p>
+        <p class="admin-event-item-title">${event.title}
+          <span style="font-size:10px;background:${event.type === 'recurring' ? '#e0ebe6' : '#f0eefc'};color:${event.type === 'recurring' ? '#2C4A3E' : '#4a4080'};padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:600;text-transform:uppercase;">${event.type === 'recurring' ? 'Regular' : 'One-off'}</span>
+        </p>
+        <p class="admin-event-item-date">${dateStr}</p>
       </div>
       <div class="admin-event-item-buttons">
         <button class="admin-event-edit-btn" onclick="editEvent('${event.id}')">Edit</button>
@@ -731,6 +907,12 @@ function renderAdminEventsList() {
     `;
     list.appendChild(item);
   });
+}
+
+function toggleEventTypeFields() {
+  const isRecurring = document.getElementById('event-type-recurring').checked;
+  document.getElementById('event-oneoff-fields').classList.toggle('hidden', isRecurring);
+  document.getElementById('event-recurring-fields').classList.toggle('hidden', !isRecurring);
 }
 
 function showNewEventForm() {
@@ -744,8 +926,12 @@ function showNewEventForm() {
   document.getElementById('event-location-custom').classList.add('hidden');
   document.getElementById('event-description').value = '';
   document.getElementById('admin-word-count').textContent = '0 / 50 words';
+  // Reset event type to one-off
+  document.getElementById('event-type-oneoff').checked = true;
+  toggleEventTypeFields();
   document.getElementById('admin-form').classList.remove('hidden');
 }
+
 
 function editEvent(id) {
   const event = allEvents.find(e => e.id === id);
@@ -754,10 +940,23 @@ function editEvent(id) {
   document.getElementById('admin-form-title').textContent = 'Edit Event';
   document.getElementById('admin-submit-btn').textContent = 'Save Changes';
   document.getElementById('event-title').value       = event.title;
-  document.getElementById('event-date').value        = event.date;
-  document.getElementById('event-time').value        = event.time;
   document.getElementById('event-description').value = event.description;
   checkWordCount();
+
+  const isRecurring = event.type === 'recurring';
+  document.getElementById(isRecurring ? 'event-type-recurring' : 'event-type-oneoff').checked = true;
+  toggleEventTypeFields();
+
+  if (isRecurring) {
+    document.getElementById('event-day-of-week').value  = event.dayOfWeek   || '';
+    document.getElementById('event-recurring-time').value = event.time      || '';
+    document.getElementById('event-frequency').value   = event.frequency    || 'weekly';
+    document.getElementById('event-start-date').value  = event.startDate    || '';
+    document.getElementById('event-end-date').value    = event.endDate      || '';
+  } else {
+    document.getElementById('event-date').value = event.date || '';
+    document.getElementById('event-time').value = event.time || '';
+  }
 
   // Set location dropdown
   const select   = document.getElementById('event-location-select');
@@ -815,15 +1014,14 @@ function checkWordCount() {
 }
 
 async function submitEvent() {
-  const title    = document.getElementById('event-title').value.trim();
-  const date     = document.getElementById('event-date').value;
-  const time     = document.getElementById('event-time').value.trim();
+  const title     = document.getElementById('event-title').value.trim();
   const locSelect = document.getElementById('event-location-select').value;
   const locCustom = document.getElementById('event-location-custom').value.trim();
-  const desc     = document.getElementById('event-description').value.trim();
+  const desc      = document.getElementById('event-description').value.trim();
+  const isRecurring = document.getElementById('event-type-recurring').checked;
 
-  if (!title || !date || !time || !locSelect || !desc) {
-    alert('Please fill in all fields');
+  if (!title || !locSelect || !desc) {
+    alert('Please fill in all required fields');
     return;
   }
 
@@ -833,13 +1031,49 @@ async function submitEvent() {
     return;
   }
 
-  // Get coordinates from location
-  const locData = EVENT_LOCATIONS.find(l => l.name === locSelect);
+  const locData  = EVENT_LOCATIONS.find(l => l.name === locSelect);
   const location = locSelect === 'Other' ? locCustom : locSelect;
   const lat = locData?.lat || null;
   const lng = locData?.lng || null;
 
-  const eventData = { title, date, time, location, description: desc, latitude: lat, longitude: lng };
+  let eventData;
+
+  if (isRecurring) {
+    const dayOfWeek  = document.getElementById('event-day-of-week').value;
+    const time       = document.getElementById('event-recurring-time').value.trim();
+    const frequency  = document.getElementById('event-frequency').value;
+    const startDate  = document.getElementById('event-start-date').value;
+    const endDate    = document.getElementById('event-end-date').value;
+
+    if (!dayOfWeek || !time) {
+      alert('Please fill in day of week and time');
+      return;
+    }
+
+    eventData = {
+      type: 'recurring',
+      title, location, description: desc,
+      dayOfWeek, time, frequency,
+      startDate: startDate || null,
+      endDate:   endDate   || null,
+      latitude: lat, longitude: lng
+    };
+  } else {
+    const date = document.getElementById('event-date').value;
+    const time = document.getElementById('event-time').value.trim();
+
+    if (!date || !time) {
+      alert('Please fill in date and time');
+      return;
+    }
+
+    eventData = {
+      type: 'one-off',
+      title, date, time, location,
+      description: desc,
+      latitude: lat, longitude: lng
+    };
+  }
 
   try {
     const method = editingEventId ? 'PUT' : 'POST';
@@ -858,12 +1092,13 @@ async function submitEvent() {
       renderAdminEventsList();
       renderEventsTab();
     } else {
-      alert('Failed to save event — please try again');
+      alert('Failed to save event â€” please try again');
     }
   } catch (err) {
-    alert('Connection error — please try again');
+    alert('Connection error â€” please try again');
   }
 }
+
 
 // ── SERVICE WORKER ─────────────────────────────
 function registerServiceWorker() {
