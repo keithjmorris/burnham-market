@@ -488,24 +488,27 @@ function nextOccurrence(event) {
   const next = new Date(today);
   const todayDay = next.getDay();
   let daysUntil = (targetDay - todayDay + 7) % 7;
+  if (daysUntil === 0) daysUntil = 0; // today counts
 
-  // If fortnightly, we need to check against startDate to find the right week
+  next.setDate(next.getDate() + daysUntil);
+
+  // If fortnightly, check parity against startDate
   if (event.frequency === 'fortnightly' && event.startDate) {
     const start = new Date(event.startDate);
     start.setHours(0,0,0,0);
-    // Find next candidate
-    const candidate = new Date(today);
-    candidate.setDate(today.getDate() + daysUntil);
-    // Check if it falls on an even or odd week from start
-    const weeksDiff = Math.round((candidate - start) / (7 * 24 * 60 * 60 * 1000));
+    const weeksDiff = Math.round((next - start) / (7 * 24 * 60 * 60 * 1000));
     if (weeksDiff % 2 !== 0) {
-      // Not this week, add 7 more days
-      candidate.setDate(candidate.getDate() + 7);
+      next.setDate(next.getDate() + 7);
     }
-    return candidate;
   }
 
-  next.setDate(next.getDate() + daysUntil);
+  // If the calculated next occurrence is before the startDate, use startDate instead
+  if (event.startDate) {
+    const start = new Date(event.startDate);
+    start.setHours(0,0,0,0);
+    if (next < start) return start;
+  }
+
   return next;
 }
 
