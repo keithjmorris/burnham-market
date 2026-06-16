@@ -16,6 +16,17 @@ const CONFIG = {
   FAIR_DATE: new Date('2026-07-01'),
   FAIR_WINDOW_DAYS_BEFORE: 30,
   FAIR_WINDOW_DAYS_AFTER:  30,
+
+  // ── FLOWER SHOW ──
+  FLOWERSHOW_START: new Date('2026-06-15'),
+  FLOWERSHOW_END:   new Date('2026-07-14'),
+  FLOWERSHOW_IMAGES: Array.from({length: 15}, (_, i) => `flowershow${i + 1}`),
+  FLOWERSHOW_IMAGE_BASE: 'https://raw.githubusercontent.com/keithjmorris/burnham-market-images/main/images/flowershow/',
+  FLOWERSHOW_IMAGE_EXT: '.jpeg',
+
+  // ── SEASONAL TAB CONTROL ──
+  SHOW_SEASONAL_TAB: true,
+  SEASONAL_MODE: 'flowershow',
 };
 
 const EVENT_LOCATIONS = [
@@ -157,7 +168,6 @@ let adminName     = '';
 let headerTapCount = 0;
 let headerTapTimer = null;
 let editingEventId = null;
-ortOrder = 'date';
 let eventSortOrder   = 'date';
 let eventTypeFilter  = 'all';
 
@@ -168,7 +178,7 @@ const TODAY_KEY  = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]
 
 // ── INIT ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  checkFairTab();
+   checkSeasonalTab();
   loadData();
   loadWeather();
   registerServiceWorker();
@@ -200,14 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ── FAIR TAB VISIBILITY ────────────────────────
-function checkFairTab() {
-  const now   = new Date();
-  const fair  = CONFIG.FAIR_DATE;
-  const from  = new Date(fair); from.setDate(from.getDate() - CONFIG.FAIR_WINDOW_DAYS_BEFORE);
-  const until = new Date(fair); until.setDate(until.getDate() + CONFIG.FAIR_WINDOW_DAYS_AFTER);
-  if (now >= from && now <= until) {
-    document.getElementById('fair-tab').classList.remove('hidden');
+function checkSeasonalTab() {
+  if (CONFIG.SHOW_SEASONAL_TAB) {
+    const tab   = document.getElementById('seasonal-tab');
+    const label = document.getElementById('seasonal-tab-label');
+    tab.classList.remove('hidden');
+    label.textContent = CONFIG.SEASONAL_MODE === 'flowershow' ? 'Flower Show' : 'Craft Fair';
   }
 }
 
@@ -258,7 +266,7 @@ function switchTab(tab) {
   restaurant: 'Eat & Drink',
   facility:   'Facilities',
   parking:    'Parking & Public Toilets',
-  fair:       'BM Craft Fair',
+  seasonal: CONFIG.SEASONAL_MODE === 'flowershow' ? 'Burnham Flower Show & Carnival' : 'BM Craft Fair',
   whatson: "What's On",
 };
   document.getElementById('header-subtitle').textContent = subtitles[tab] || 'Village Guide';
@@ -279,6 +287,8 @@ function renderTab(tab) {
     renderMapTab(tab);
   } else if (tab === 'whatson') {
     renderEventsTab();
+  } else if (tab === 'seasonal') {
+    renderSeasonalTab();
   } else {
     renderCardTab(tab);
   }
@@ -865,6 +875,7 @@ function showState(state) {
   document.getElementById('error-state').classList.toggle('hidden', state !== 'error');
   document.getElementById('cards-list').classList.toggle('hidden', state !== 'cards');
   document.getElementById('map-view').classList.toggle('hidden', state !== 'map');
+  document.getElementById('gallery-view').classList.toggle('hidden', state !== 'gallery');
 }
 
 // ── ADMIN ──────────────────────────────────────
@@ -1164,6 +1175,85 @@ async function submitEvent() {
   } catch (err) {
     alert('Connection error â€” please try again');
   }
+}
+
+// ── SEASONAL TAB ───────────────────────────────
+let galleryIndex = 0;
+let galleryTotal = 0;
+let galleryStartX = 0;
+
+function renderSeasonalTab() {
+  document.getElementById('weather-card').classList.add('hidden');
+  showState('gallery');
+  if (CONFIG.SEASONAL_MODE === 'flowershow') {
+    renderFlowerShowGallery();
+  } else {
+    renderFairCards();
+  }
+}
+
+function renderFlowerShowGallery() {
+  const header = document.getElementById('gallery-header');
+  header.innerHTML = `
+    <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
+    <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
+  `;
+
+  const track  = document.getElementById('gallery-track');
+  const dots   = document.getElementById('gallery-dots');
+  const images = CONFIG.FLOWERSHOW_IMAGES;
+  galleryTotal = images.length;
+  galleryIndex = 0;
+  track.innerHTML = '';
+  dots.innerHTML  = '';
+
+  images.forEach((name, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'gallery-slide';
+    slide.innerHTML = `<img src="${CONFIG.FLOWERSHOW_IMAGE_BASE}${name}${CONFIG.FLOWERSHOW_IMAGE_EXT}"
+      alt="Flower Show image ${i + 1}" loading="lazy">`;
+    track.appendChild(slide);
+
+    const dot = document.createElement('div');
+    dot.className = `gallery-dot${i === 0 ? ' active' : ''}`;
+    dot.onclick = () => goToSlide(i);
+    dots.appendChild(dot);
+  });
+
+  // Touch/swipe support
+  const container = document.getElementById('gallery-container');
+  container.addEventListener('touchstart', e => {
+    galleryStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  container.addEventListener('touchend', e => {
+    const diff = galleryStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextSlide();
+      else prevSlide();
+    }
+  }, { passive: true });
+}
+
+function goToSlide(index) {
+  galleryIndex = Math.max(0, Math.min(index, galleryTotal - 1));
+  document.getElementById('gallery-track').style.transform = `translateX(-${galleryIndex * 100}vw)`;
+  document.querySelectorAll('.gallery-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === galleryIndex);
+  });
+}
+
+function nextSlide() { goToSlide(galleryIndex + 1); }
+function prevSlide() { goToSlide(galleryIndex - 1); }
+
+function renderFairCards() {
+  showState('cards');
+  const list = document.getElementById('cards-list');
+  list.innerHTML = `
+    <div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <p>Craft Fair information coming soon!</p>
+    </div>`;
 }
 
 

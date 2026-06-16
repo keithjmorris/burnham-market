@@ -70,6 +70,15 @@
       <div class="map-legend" id="map-legend"></div>
     </div>
 
+    <!-- Gallery view (Flower Show / Fair) -->
+<div class="gallery-view hidden" id="gallery-view">
+  <div class="gallery-header" id="gallery-header"></div>
+  <div class="gallery-container" id="gallery-container">
+    <div class="gallery-track" id="gallery-track"></div>
+  </div>
+  <div class="gallery-dots" id="gallery-dots"></div>
+</div>
+
   </main>
 
   <!-- ── TAB BAR ── -->
@@ -91,17 +100,17 @@
   <span>Parking & WC</span>
 </button>
     <!-- Fair tab — shown conditionally by JS -->
-    <button class="tab-item hidden" data-tab="fair" id="fair-tab" onclick="switchTab('fair')">
-      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <span>Fair</span>
-    </button>
+    <button class="tab-item hidden" data-tab="seasonal" id="seasonal-tab" onclick="switchTab('seasonal')">
+  <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4"/><path d="M12 15a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4"/><path d="M2 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4"/><path d="M15 12a4 4 0 0 1 4-4 4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4"/></svg>
+  <span id="seasonal-tab-label">Flower Show</span>
+</button>
     <button class="tab-item" data-tab="whatson" onclick="switchTab('whatson')">
   <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
   <span>What's On</span>
 </button>
   </nav>
 
-  <!-- ── OPENING HOURS BOTTOM SHEET ── -->
+  <!-- ── OPENING HOURS BOTTOM SHEET FORMSHOPS AND CAFES── -->
   <div class="sheet-backdrop hidden" id="sheet-backdrop" onclick="closeSheet()"></div>
   <div class="bottom-sheet hidden" id="bottom-sheet">
     <div class="sheet-handle"></div>
