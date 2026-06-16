@@ -1195,9 +1195,26 @@ function renderSeasonalTab() {
 function renderFlowerShowGallery() {
   const header = document.getElementById('gallery-header');
   header.innerHTML = `
-    <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
-    <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
-  `;
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
+      <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
+    </div>
+    <button onclick="openEntryForm()" style="
+      background:white;
+      color:var(--green);
+      border:none;
+      border-radius:20px;
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:700;
+      font-family:var(--font-body);
+      cursor:pointer;
+      flex-shrink:0;
+      margin-left:12px;
+    ">Enter</button>
+  </div>
+`;
 
   const track  = document.getElementById('gallery-track');
   const dots   = document.getElementById('gallery-dots');
@@ -1254,6 +1271,105 @@ function renderFairCards() {
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       <p>Craft Fair information coming soon!</p>
     </div>`;
+}
+
+// ── FLOWER SHOW ENTRY FORM ──────────────────────
+function openEntryForm() {
+  document.getElementById('entry-backdrop').classList.remove('hidden');
+  document.getElementById('entry-panel').classList.remove('hidden');
+  document.getElementById('entry-success').classList.add('hidden');
+  document.querySelectorAll('.entry-section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('entry-general').classList.remove('hidden');
+  document.querySelectorAll('.entry-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.entry-tab').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeEntryForm() {
+  document.getElementById('entry-backdrop').classList.add('hidden');
+  document.getElementById('entry-panel').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function switchEntryTab(section) {
+  document.querySelectorAll('.entry-section').forEach(s => s.classList.add('hidden'));
+  document.getElementById(`entry-${section}`).classList.remove('hidden');
+  document.querySelectorAll('.entry-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function updateFee(section) {
+  const input    = document.getElementById(`${section}-classes`).value;
+  const classes  = input.split(',').map(s => s.trim()).filter(s => s !== '');
+  const count    = classes.length;
+  const fee      = (count * 0.20).toFixed(2);
+  const display  = document.getElementById(`${section}-fee`);
+
+  if (count === 0) {
+    display.textContent = 'Enter class numbers to calculate fee';
+  } else {
+    display.textContent = `${count} class${count > 1 ? 'es' : ''} — fee: £${fee}`;
+  }
+}
+
+async function submitEntry(section) {
+  const name      = document.getElementById(`${section}-name`).value.trim();
+  const address   = document.getElementById(`${section}-address`).value.trim();
+  const telephone = document.getElementById(`${section}-telephone`).value.trim();
+  const classes   = document.getElementById(`${section}-classes`).value.trim();
+
+  if (!name || !address || !telephone || !classes) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  const classList   = classes.split(',').map(s => s.trim()).filter(s => s !== '');
+  const count       = classList.length;
+  const fee         = `£${(count * 0.20).toFixed(2)}`;
+
+  const sectionNames = {
+    general:     'General (Adult Classes 1–92)',
+    photography: 'Photography (Classes 56–59)',
+    children:    'Children\'s (Classes 93–119)'
+  };
+
+  const data = {
+    section:         sectionNames[section],
+    name,
+    address,
+    telephone,
+    classes:         classList.join(', '),
+    numberOfClasses: count,
+    totalFee:        fee,
+    age:             section === 'children' ? document.getElementById('children-age').value : '',
+    notes:           section === 'photography' ? `Photos per class: ${document.getElementById('photography-photos').value}` : ''
+  };
+
+  const btn = document.querySelector(`#entry-${section} .entry-submit-btn`);
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/flower-show-entry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      document.querySelectorAll('.entry-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('success-fee').textContent = fee;
+      document.getElementById('entry-success').classList.remove('hidden');
+    } else {
+      alert('Submission failed — please try again');
+      btn.textContent = 'Submit Entry';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    alert('Connection error — please try again');
+    btn.textContent = 'Submit Entry';
+    btn.disabled = false;
+  }
 }
 
 

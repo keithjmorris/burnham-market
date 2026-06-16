@@ -310,5 +310,90 @@
     <button class="admin-btn-primary" onclick="showNewEventForm()">+ New Event</button>
   </div>
 </div>
+
+<!-- ── FLOWER SHOW ENTRY FORM ── -->
+<div class="entry-backdrop hidden" id="entry-backdrop" onclick="closeEntryForm()"></div>
+<div class="entry-panel hidden" id="entry-panel">
+  <div class="entry-header">
+    <div>
+      <h2 class="entry-title">Enter the Flower Show</h2>
+      <p class="entry-subtitle">Burnham Flower Show & Carnival 2026</p>
+    </div>
+    <button class="entry-close" onclick="closeEntryForm()">✕</button>
+  </div>
+
+  <!-- Section tabs -->
+  <div class="entry-tabs">
+    <button class="entry-tab active" onclick="switchEntryTab('general')">General</button>
+    <button class="entry-tab" onclick="switchEntryTab('photography')">Photography</button>
+    <button class="entry-tab" onclick="switchEntryTab('children')">Children's</button>
+  </div>
+
+  <!-- General section -->
+  <div class="entry-section" id="entry-general">
+    <div class="entry-section-info">
+      <p class="entry-section-title">Adult Classes (1–92)</p>
+      <p class="entry-section-desc">Cut Flowers · Pot Plants · Soft Fruit · Vegetables · Flower Arranging · Cookery · Homemade Wine & Drink · Handicraft</p>
+      <p class="entry-note">⚠️ Classes 49–55 also require a call to Diana Black on 01328 730778 to book a judge visit by Friday 3rd July.</p>
+    </div>
+    <div class="entry-fields">
+      <input class="entry-input" type="text" id="general-name" placeholder="Full name" />
+      <input class="entry-input" type="text" id="general-address" placeholder="Address" />
+      <input class="entry-input" type="tel" id="general-telephone" placeholder="Telephone number" />
+      <input class="entry-input" type="text" id="general-classes" placeholder="Class numbers e.g. 3, 7, 12, 45" oninput="updateFee('general')"/>
+      <div class="entry-fee-display" id="general-fee">Enter class numbers to calculate fee</div>
+      <p class="entry-note">Entry fee 20p per class. Entries accepted on the day up to 9am at 40p per class.</p>
+      <button class="entry-submit-btn" onclick="submitEntry('general')">Submit Entry</button>
+    </div>
+  </div>
+
+  <!-- Photography section -->
+  <div class="entry-section hidden" id="entry-photography">
+    <div class="entry-section-info">
+      <p class="entry-section-title">Photography (Classes 56–59)</p>
+      <p class="entry-section-desc">56 Burnham · 57 Hilarious · 58 In the wild · 59 Free choice</p>
+      <p class="entry-note">Photos must be colour or black & white, size 6"×4". Each class has a subsection for 16yrs & under. Please submit photos in advance if possible as they take a long time to display.</p>
+      <p class="entry-note">⚠️ Entries will be accepted on the day up until 9am with an increased entry fee of 40p.</p>
+    </div>
+    <div class="entry-fields">
+      <input class="entry-input" type="text" id="photography-name" placeholder="Full name" />
+      <input class="entry-input" type="text" id="photography-address" placeholder="Address" />
+      <input class="entry-input" type="tel" id="photography-telephone" placeholder="Telephone number" />
+      <input class="entry-input" type="text" id="photography-classes" placeholder="Class numbers e.g. 56, 57" oninput="updateFee('photography')"/>
+      <input class="entry-input" type="number" id="photography-photos" placeholder="Number of photographs per class (max 2)" min="1" max="2" />
+      <div class="entry-fee-display" id="photography-fee">Enter class numbers to calculate fee</div>
+      <p class="entry-note">Entry fee 20p per class. Sponsor: Norfolk Post & Beam.</p>
+      <button class="entry-submit-btn" onclick="submitEntry('photography')">Submit Entry</button>
+    </div>
+  </div>
+
+  <!-- Children's section -->
+  <div class="entry-section hidden" id="entry-children">
+    <div class="entry-section-info">
+      <p class="entry-section-title">Children's Classes (93–119)</p>
+      <p class="entry-section-desc">Art · Handicraft · Cookery · Gardening</p>
+      <p class="entry-note">Prizes: 1st £2.50 · 2nd £2 · 3rd £1.50. Classes 117, 118 & 119 must come from no further than 6 miles from Burnham Market — phone Diana Black on 01328 730778 by Friday 3rd July.</p>
+    </div>
+    <div class="entry-fields">
+      <input class="entry-input" type="text" id="children-name" placeholder="Child's full name" />
+      <input class="entry-input" type="text" id="children-address" placeholder="Address" />
+      <input class="entry-input" type="tel" id="children-telephone" placeholder="Telephone number" />
+      <input class="entry-input" type="number" id="children-age" placeholder="Child's age" min="2" max="16" />
+      <input class="entry-input" type="text" id="children-classes" placeholder="Class numbers e.g. 93, 95, 110" oninput="updateFee('children')"/>
+      <div class="entry-fee-display" id="children-fee">Enter class numbers to calculate fee</div>
+      <p class="entry-note">Entry fee 20p per class.</p>
+      <button class="entry-submit-btn" onclick="submitEntry('children')">Submit Entry</button>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div class="entry-success hidden" id="entry-success">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2C4A3E" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+    <h3>Entry Submitted!</h3>
+    <p>Thank you for entering the Burnham Flower Show & Carnival 2026. The organiser will be in touch if needed.</p>
+    <p class="entry-note">Please bring your entry fee of <span id="success-fee"></span> on the day.</p>
+    <button class="entry-submit-btn" onclick="closeEntryForm()">Close</button>
+  </div>
+</div>
 </body>
 </html>
