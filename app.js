@@ -254,6 +254,8 @@ async function loadEvents() {
 // ── TAB SWITCHING ──────────────────────────────
 function switchTab(tab) {
   currentTab = tab;
+  document.querySelector('.app-header').classList.remove('hidden');
+  document.body.classList.remove('header-hidden');
 
   // Update tab bar active state
   document.querySelectorAll('.tab-item').forEach(btn => {
@@ -1184,6 +1186,8 @@ let galleryStartX = 0;
 
 function renderSeasonalTab() {
   document.getElementById('weather-card').classList.add('hidden');
+  document.querySelector('.app-header').classList.add('hidden');
+  document.body.classList.add('header-hidden');
   showState('gallery');
   if (CONFIG.SEASONAL_MODE === 'flowershow') {
     renderFlowerShowGallery();

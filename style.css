@@ -1335,3 +1335,8 @@ img { display: block; }
   color: var(--text-mid);
   line-height: 1.5;
 }
+
+/* ── HEADER HIDDEN STATE ── */
+body.header-hidden .app-main {
+  top: env(safe-area-inset-top, 0px);
+}
