@@ -1106,8 +1106,8 @@ function checkWordCount() {
   const text  = document.getElementById('event-description').value.trim();
   const words = text === '' ? 0 : text.split(/\s+/).length;
   const el    = document.getElementById('admin-word-count');
-  el.textContent = `${words} / 50 words`;
-  el.classList.toggle('over', words > 50);
+  el.textContent = `${words} / 400 words`;
+  el.classList.toggle('over', words > 400);
 }
 
 async function submitEvent() {
@@ -1124,7 +1124,7 @@ async function submitEvent() {
 
   const words = desc.split(/\s+/).length;
   if (words > 50) {
-    alert('Description must be 50 words or fewer');
+    alert('Description must be 400 words or fewer');
     return;
   }
 
