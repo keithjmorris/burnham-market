@@ -1123,7 +1123,7 @@ async function submitEvent() {
   }
 
   const words = desc.split(/\s+/).length;
-  if (words > 50) {
+  if (words > 400) {
     alert('Description must be 400 words or fewer');
     return;
   }
