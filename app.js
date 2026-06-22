@@ -368,12 +368,13 @@ function renderEventsTab() {
   let displayEvents = [];
 
   allEvents.forEach(e => {
-    if (!e.type || e.type === 'one-off') {
-      // One-off: include if date is within range
-      if (new Date(e.date) >= twoDaysAgo) {
-        displayEvents.push({ ...e, _sortDate: new Date(e.date) });
-      }
-    } else if (e.type === 'recurring') {
+  if (!e.type || e.type === 'one-off') {
+    // One-off: include if end date (or start date if no end) hasn't passed
+    const relevantDate = e.endDate ? new Date(e.endDate) : new Date(e.date);
+    if (relevantDate >= twoDaysAgo) {
+      displayEvents.push({ ...e, _sortDate: new Date(e.date) });
+    }
+  } else if (e.type === 'recurring') {
       // Recurring: include if end date hasn't passed (or no end date)
       if (!e.endDate || new Date(e.endDate) >= now) {
         const next = nextOccurrence(e);
@@ -578,6 +579,15 @@ function buildEventCard(event) {
   const month   = date.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
   const weekday = date.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
+  let dateLineHtml;
+  if (event.endDate) {
+    const endDate = new Date(event.endDate);
+    const endStr   = endDate.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    const startStr = date.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    dateLineHtml = `Starts ${startStr} · Ends ${endStr} · ${event.time}`;
+  } else {
+    dateLineHtml = `${weekday} ${event.time}`;
+  }
 
   card.innerHTML = `
     <div class="event-header">
@@ -591,7 +601,7 @@ function buildEventCard(event) {
       <div class="event-meta">
         <div class="event-meta-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          ${weekday} ${event.time}
+          ${dateLineHtml}
         </div>
         <div class="event-meta-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -1076,9 +1086,10 @@ function editEvent(id) {
     document.getElementById('event-start-date').value  = event.startDate    || '';
     document.getElementById('event-end-date').value    = event.endDate      || '';
   } else {
-    document.getElementById('event-date').value = event.date || '';
-    document.getElementById('event-time').value = event.time || '';
-  }
+  document.getElementById('event-date').value         = event.date || '';
+  document.getElementById('event-end-date-oneoff').value = event.endDate || '';
+  document.getElementById('event-time').value         = event.time || '';
+}
 
   // Set location dropdown
   const select   = document.getElementById('event-location-select');
@@ -1181,21 +1192,23 @@ async function submitEvent() {
       latitude: lat, longitude: lng
     };
   } else {
-    const date = document.getElementById('event-date').value;
-    const time = document.getElementById('event-time').value.trim();
+  const date    = document.getElementById('event-date').value;
+  const endDate = document.getElementById('event-end-date-oneoff').value;
+  const time    = document.getElementById('event-time').value.trim();
 
-    if (!date || !time) {
-      alert('Please fill in date and time');
-      return;
-    }
-
-    eventData = {
-      type: 'one-off',
-      title, date, time, location,
-      description: desc,
-      latitude: lat, longitude: lng
-    };
+  if (!date || !time) {
+    alert('Please fill in date and time');
+    return;
   }
+
+  eventData = {
+    type: 'one-off',
+    title, date, time, location,
+    endDate: endDate || null,
+    description: desc,
+    latitude: lat, longitude: lng
+  };
+}
 
   try {
     const method = editingEventId ? 'PUT' : 'POST';

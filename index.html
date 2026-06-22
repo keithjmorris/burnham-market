@@ -175,15 +175,19 @@
 
   <!-- One-off specific fields -->
   <div id="event-oneoff-fields">
-    <div class="admin-field">
-      <label class="admin-label">Date</label>
-      <input class="admin-input" type="date" id="event-date" />
-    </div>
-    <div class="admin-field">
-      <label class="admin-label">Time</label>
-      <input class="admin-input" type="text" id="event-time" placeholder="e.g. 10amâ€“4pm" />
-    </div>
+  <div class="admin-field">
+    <label class="admin-label">Start date</label>
+    <input class="admin-input" type="date" id="event-date" />
   </div>
+  <div class="admin-field">
+    <label class="admin-label">End date <span style="font-weight:400;opacity:0.6">(optional — for multi-day events)</span></label>
+    <input class="admin-input" type="date" id="event-end-date-oneoff" />
+  </div>
+  <div class="admin-field">
+    <label class="admin-label">Time</label>
+    <input class="admin-input" type="text" id="event-time" placeholder="e.g. 10am–4pm" />
+  </div>
+</div>
 
   <!-- Recurring specific fields -->
   <div id="event-recurring-fields" class="hidden">
