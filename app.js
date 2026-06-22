@@ -612,7 +612,28 @@ function buildEventCard(event) {
 }
 
 function formatDescription(text) {
-  return text.replace(/\n/g, '<br>');
+  // First handle line breaks
+  let formatted = text.replace(/\n/g, '<br>');
+
+  // Convert URLs into clickable links
+  formatted = formatted.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener" style="color:var(--sea);text-decoration:underline;">$1</a>'
+  );
+
+  // Convert email addresses into clickable mailto: links
+  formatted = formatted.replace(
+    /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+    '<a href="mailto:$1" style="color:var(--sea);text-decoration:underline;">$1</a>'
+  );
+
+  // Convert UK phone numbers into clickable tel: links
+  formatted = formatted.replace(
+    /(\+?\d{2,5}[\s-]?\d{3,4}[\s-]?\d{3,4})/g,
+    '<a href="tel:$1" style="color:var(--sea);text-decoration:underline;">$1</a>'
+  );
+
+  return formatted;
 }
 
 function buildRecurringEventCard(event) {
