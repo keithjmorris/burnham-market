@@ -598,7 +598,7 @@ function buildEventCard(event) {
           ${event.location}
         </div>
       </div>
-      <p class="event-description">${event.description}</p>
+      <p class="event-description">${formatDescription(event.description)}</p>
       <div class="event-actions">
         ${hasLocation ? `
         <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
@@ -609,6 +609,10 @@ function buildEventCard(event) {
     </div>
   `;
   return card;
+}
+
+function formatDescription(text) {
+  return text.replace(/\n/g, '<br>');
 }
 
 function buildRecurringEventCard(event) {
@@ -654,7 +658,7 @@ function buildRecurringEventCard(event) {
         </div>
         ${dateRangeHtml}
       </div>
-      <p class="event-description">${event.description}</p>
+      <p class="event-description">${formatDescription(event.description)}</p>
       <div class="event-actions">
         ${hasLocation ? `
         <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
