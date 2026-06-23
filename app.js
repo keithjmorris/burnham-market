@@ -46,6 +46,19 @@ const CONFIG = {
   SEASONAL_MODE: 'flowershow',
 };
 
+// ── FIREBASE SETUP (Flower Show entries) ──
+const firebaseConfig = {
+  apiKey: "AIzaSyAmMoJa-5U6Kzkj3ClL8jYB7Y3pL8ysC04",
+  authDomain: "burnhammarketcraftfair.firebaseapp.com",
+  databaseURL: "https://burnhammarketcraftfair-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "burnhammarketcraftfair",
+  storageBucket: "burnhammarketcraftfair.firebasestorage.app",
+  messagingSenderId: "388230915965",
+  appId: "1:388230915965:web:93c83d174322c2aab28e14"
+};
+firebase.initializeApp(firebaseConfig);
+const flowerShowDb = firebase.database();
+
 const EVENT_LOCATIONS = [
   { name: 'Village Green',        lat: 52.9451813, lng: 0.7234069 },
   { name: 'Playing Field',        lat: 52.9444178, lng: 0.729474  },
@@ -1382,9 +1395,9 @@ async function submitEntry(section) {
     return;
   }
 
-  const classList   = classes.split(',').map(s => s.trim()).filter(s => s !== '');
-  const count       = classList.length;
-  const fee         = `£${(count * 0.20).toFixed(2)}`;
+  const classList = classes.split(',').map(s => s.trim()).filter(s => s !== '');
+  const count     = classList.length;
+  const fee       = `£${(count * 0.20).toFixed(2)}`;
 
   const sectionNames = {
     general:     'General (Adult Classes 1–92)',
@@ -1401,7 +1414,8 @@ async function submitEntry(section) {
     numberOfClasses: count,
     totalFee:        fee,
     age:             section === 'children' ? document.getElementById('children-age').value : '',
-    notes:           section === 'photography' ? `Photos per class: ${document.getElementById('photography-photos').value}` : ''
+    notes:           section === 'photography' ? `Photos per class: ${document.getElementById('photography-photos').value}` : '',
+    submittedAt:     new Date().toISOString()
   };
 
   const btn = document.querySelector(`#entry-${section} .entry-submit-btn`);
@@ -1409,27 +1423,19 @@ async function submitEntry(section) {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/flower-show-entry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    await flowerShowDb.ref('flower-show/entries').push(data);
 
-    if (res.ok) {
-      document.querySelectorAll('.entry-section').forEach(s => s.classList.add('hidden'));
-      document.getElementById('success-fee').textContent = fee;
-      document.getElementById('entry-success').classList.remove('hidden');
-    } else {
-      alert('Submission failed — please try again');
-      btn.textContent = 'Submit Entry';
-      btn.disabled = false;
-    }
+    document.querySelectorAll('.entry-section').forEach(s => s.classList.add('hidden'));
+    document.getElementById('success-fee').textContent = fee;
+    document.getElementById('entry-success').classList.remove('hidden');
   } catch (err) {
-    alert('Connection error — please try again');
+    console.error('Flower show entry error:', err);
+    alert('Submission failed — please try again');
     btn.textContent = 'Submit Entry';
     btn.disabled = false;
   }
 }
+    
 
 
 // ── SERVICE WORKER ─────────────────────────────
