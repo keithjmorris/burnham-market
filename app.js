@@ -49,6 +49,8 @@ const CONFIG = {
   SEASONAL_MODE: 'flowershow',
 
   FLOWER_SHOW_ENTRY_OPEN: false,
+
+  ROGUE_TRADERS_ENTRY_OPEN: false,
 };
 
 // ── FIREBASE SETUP (Flower Show entries) ──
@@ -1286,19 +1288,19 @@ function renderFlowerShowGallery() {
 header.innerHTML = `
   <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
   <div style="display:flex;gap:6px;margin:8px 0;justify-content:center;">
-    ${showRogueTraders ? `
-    <button onclick="openRogueTraders()" style="
-      background:white;
-      color:var(--green);
-      border:none;
-      border-radius:20px;
-      padding:8px 12px;
-      font-size:12px;
-      font-weight:700;
-      font-family:var(--font-body);
-      cursor:pointer;
-      white-space:nowrap;
-    ">🕵️ Rogue Traders</button>` : ''}
+    ${(showRogueTraders && CONFIG.ROGUE_TRADERS_ENTRY_OPEN) ? `
+<button onclick="openRogueTraders()" style="
+  background:white;
+  color:var(--green);
+  border:none;
+  border-radius:20px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:700;
+  font-family:var(--font-body);
+  cursor:pointer;
+  white-space:nowrap;
+">🕵️ Rogue Traders</button>` : ''}
     ${CONFIG.FLOWER_SHOW_ENTRY_OPEN ? `
 <button onclick="openEntryForm()" style="
   background:white;
