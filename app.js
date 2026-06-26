@@ -41,9 +41,14 @@ const CONFIG = {
   FLOWERSHOW_IMAGE_BASE: 'https://raw.githubusercontent.com/keithjmorris/burnham-market-images/main/images/flowershow/',
   FLOWERSHOW_IMAGE_EXT: '.jpeg',
 
+  // ── ROGUE TRADERS ──
+  ROGUE_TRADERS_END: new Date('2026-07-11T23:59:59'),
+
   // ── SEASONAL TAB CONTROL ──
   SHOW_SEASONAL_TAB: true,
   SEASONAL_MODE: 'flowershow',
+
+  FLOWER_SHOW_ENTRY_OPEN: false,
 };
 
 // ── FIREBASE SETUP (Flower Show entries) ──
@@ -69,6 +74,14 @@ const EVENT_LOCATIONS = [
   { name: 'Village Hall',         lat: 52.9413887, lng: 0.7318252 },
   { name: 'Other',                lat: null,        lng: null      },
 ];
+
+// ── ROGUE TRADERS CIPHER KEY ────────────────────
+const ROGUE_CIPHER = {};
+'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((letter, i) => {
+  ROGUE_CIPHER[i + 1] = letter;
+});
+
+let rogueSightings = [];
 
 // ── WEATHER ────────────────────────────────────
 const WMO_CODES = {
@@ -1266,26 +1279,42 @@ function renderSeasonalTab() {
 
 function renderFlowerShowGallery() {
   const header = document.getElementById('gallery-header');
-  header.innerHTML = `
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <div>
-      <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
-      <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
-    </div>
-    <button onclick="openEntryForm()" style="
+  const showRogueTraders = new Date() <= CONFIG.ROGUE_TRADERS_END;
+
+
+
+header.innerHTML = `
+  <p class="gallery-header-title">Burnham Flower Show & Carnival</p>
+  <div style="display:flex;gap:6px;margin:8px 0;justify-content:center;">
+    ${showRogueTraders ? `
+    <button onclick="openRogueTraders()" style="
       background:white;
       color:var(--green);
       border:none;
       border-radius:20px;
-      padding:8px 14px;
-      font-size:13px;
+      padding:8px 12px;
+      font-size:12px;
       font-weight:700;
       font-family:var(--font-body);
       cursor:pointer;
-      flex-shrink:0;
-      margin-left:12px;
-    ">Enter</button>
+      white-space:nowrap;
+    ">🕵️ Rogue Traders</button>` : ''}
+    ${CONFIG.FLOWER_SHOW_ENTRY_OPEN ? `
+<button onclick="openEntryForm()" style="
+  background:white;
+  color:var(--green);
+  border:none;
+  border-radius:20px;
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:700;
+  font-family:var(--font-body);
+  cursor:pointer;
+  white-space:nowrap;
+">Flower Show Entry</button>
+` : ''}
   </div>
+  <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
 `;
 
   const track  = document.getElementById('gallery-track');
@@ -1322,6 +1351,10 @@ function renderFlowerShowGallery() {
       else prevSlide();
     }
   }, { passive: true });
+}
+
+function openRogueTraders() {
+  alert('Rogue Traders hunt tool coming soon!');
 }
 
 function goToSlide(index) {
@@ -1432,6 +1465,187 @@ async function submitEntry(section) {
     console.error('Flower show entry error:', err);
     alert('Submission failed — please try again');
     btn.textContent = 'Submit Entry';
+    btn.disabled = false;
+  }
+}
+
+// ── ROGUE TRADERS HUNT TOOL ─────────────────────
+function openRogueTraders() {
+  document.getElementById('rt-backdrop').classList.remove('hidden');
+  document.getElementById('rt-panel').classList.remove('hidden');
+  document.getElementById('rt-content').classList.remove('hidden');
+  document.getElementById('rt-success').classList.add('hidden');
+  document.body.style.overflow = 'hidden';
+
+  renderCipherKey();
+  loadRogueProgress();
+  renderSightings();
+}
+
+function closeRogueTraders() {
+  document.getElementById('rt-backdrop').classList.add('hidden');
+  document.getElementById('rt-panel').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function renderCipherKey() {
+  const grid = document.getElementById('rt-cipher-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 26; i++) {
+    grid.innerHTML += `
+      <div class="rt-cipher-cell">
+        <span class="letter">${ROGUE_CIPHER[i]}</span>
+        <span class="number">${i}</span>
+      </div>`;
+  }
+}
+
+function addSighting() {
+  if (rogueSightings.length >= 15) {
+    alert('You can record a maximum of 15 sightings');
+    return;
+  }
+  rogueSightings.push({ shop: '', number: '', item: '' });
+  renderSightings();
+  saveRogueProgress();
+}
+
+function removeSighting(index) {
+  rogueSightings.splice(index, 1);
+  renderSightings();
+  saveRogueProgress();
+}
+
+function updateSighting(index, field, value) {
+  rogueSightings[index][field] = value;
+  if (field === 'number') {
+    renderDecodingTable();
+  }
+  saveRogueProgress();
+}
+
+function renderSightings() {
+  const list = document.getElementById('rt-sightings-list');
+  list.innerHTML = '';
+  rogueSightings.forEach((sighting, i) => {
+    const row = document.createElement('div');
+    row.className = 'rt-sighting-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Shop name" value="${sighting.shop}" 
+        oninput="updateSighting(${i}, 'shop', this.value)" />
+      <input type="number" placeholder="Number" value="${sighting.number}" min="1" max="26"
+        oninput="updateSighting(${i}, 'number', this.value)" />
+      <input type="text" placeholder="Rogue item" value="${sighting.item}"
+        oninput="updateSighting(${i}, 'item', this.value)" />
+      <button class="rt-sighting-delete" onclick="removeSighting(${i})">✕</button>
+    `;
+    list.appendChild(row);
+  });
+  renderDecodingTable();
+}
+
+function renderDecodingTable() {
+  const table = document.getElementById('rt-decoding-table');
+  const validNumbers = rogueSightings
+    .map(s => s.number)
+    .filter(n => n && n >= 1 && n <= 26);
+
+  if (validNumbers.length === 0) {
+    table.innerHTML = '<p style="font-size:12px;color:var(--text-light);">Add sightings with numbers above to see them decoded here.</p>';
+    return;
+  }
+
+  table.innerHTML = '';
+  validNumbers.forEach(num => {
+    const letter = ROGUE_CIPHER[num] || '?';
+    table.innerHTML += `
+      <div class="rt-decoding-row">
+        <span class="rt-decoding-number">${num}</span>
+        <span class="rt-decoding-letter">${letter}</span>
+      </div>`;
+  });
+}
+
+function saveRogueProgress() {
+  const progress = {
+    sightings: rogueSightings,
+    word1: document.getElementById('rt-word1')?.value || '',
+    word2: document.getElementById('rt-word2')?.value || '',
+    word3: document.getElementById('rt-word3')?.value || '',
+    bonusShop: document.getElementById('rt-bonus-shop')?.value || '',
+    bonusReason: document.getElementById('rt-bonus-reason')?.value || '',
+    name: document.getElementById('rt-name')?.value || '',
+    age: document.querySelector('input[name="rt-age"]:checked')?.value || ''
+  };
+  localStorage.setItem('rogueTradersProgress', JSON.stringify(progress));
+}
+
+function loadRogueProgress() {
+  const saved = localStorage.getItem('rogueTradersProgress');
+  if (!saved) {
+    rogueSightings = [];
+    return;
+  }
+
+  try {
+    const progress = JSON.parse(saved);
+    rogueSightings = progress.sightings || [];
+    document.getElementById('rt-word1').value = progress.word1 || '';
+    document.getElementById('rt-word2').value = progress.word2 || '';
+    document.getElementById('rt-word3').value = progress.word3 || '';
+    document.getElementById('rt-bonus-shop').value = progress.bonusShop || '';
+    document.getElementById('rt-bonus-reason').value = progress.bonusReason || '';
+    document.getElementById('rt-name').value = progress.name || '';
+    if (progress.age) {
+      const radio = document.querySelector(`input[name="rt-age"][value="${progress.age}"]`);
+      if (radio) radio.checked = true;
+    }
+  } catch (err) {
+    console.warn('Could not load Rogue Traders progress:', err);
+    rogueSightings = [];
+  }
+}
+
+async function submitRogueTraders() {
+  const name = document.getElementById('rt-name').value.trim();
+  const age  = document.querySelector('input[name="rt-age"]:checked')?.value;
+  const word1 = document.getElementById('rt-word1').value.trim();
+  const word2 = document.getElementById('rt-word2').value.trim();
+  const word3 = document.getElementById('rt-word3').value.trim();
+
+  if (!name || !age) {
+    alert('Please enter your name and select Adult/Child before submitting');
+    return;
+  }
+
+  if (!word1 && !word2 && !word3) {
+    alert('Please enter your final solution before submitting');
+    return;
+  }
+
+  const data = {
+    name,
+    age,
+    sightings: rogueSightings,
+    finalSolution: `${word1} / ${word2} / ${word3}`,
+    bonusShop: document.getElementById('rt-bonus-shop').value.trim(),
+    bonusReason: document.getElementById('rt-bonus-reason').value.trim(),
+    submittedAt: new Date().toISOString()
+  };
+
+  const btn = document.querySelector('.rt-submit-btn');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    await flowerShowDb.ref('rogue-traders/entries').push(data);
+    document.getElementById('rt-content').classList.add('hidden');
+    document.getElementById('rt-success').classList.remove('hidden');
+    localStorage.removeItem('rogueTradersProgress');
+  } catch (err) {
+    console.error('Rogue Traders submission error:', err);
+    alert('Submission failed — please try again');
+    btn.textContent = 'Submit My Entry';
     btn.disabled = false;
   }
 }

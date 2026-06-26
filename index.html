@@ -401,5 +401,91 @@
     <button class="entry-submit-btn" onclick="closeEntryForm()">Close</button>
   </div>
 </div>
+<!-- ── ROGUE TRADERS HUNT TOOL ── -->
+<div class="rt-backdrop hidden" id="rt-backdrop"></div>
+<div class="rt-panel hidden" id="rt-panel">
+  <div class="rt-header">
+    <div>
+      <h2 class="rt-title">🕵️ Rogue Traders</h2>
+      <p class="rt-subtitle">Cipher Hunt Field Report</p>
+    </div>
+    <button class="rt-close" onclick="closeRogueTraders()">✕</button>
+  </div>
+
+  <div class="rt-content" id="rt-content">
+
+    <!-- Mission brief -->
+    <div class="rt-brief">
+      <p><strong>Your mission:</strong> Locate Rogue Trader displays, record any numbers you find (there are 15 to find), decode them into letters, and reveal the secret HQ!</p>
+    </div>
+
+    <!-- Cipher key -->
+    <div class="rt-cipher-key">
+      <p class="rt-section-label">★ Rogue Cipher Key ★</p>
+      <div class="rt-cipher-grid" id="rt-cipher-grid"></div>
+    </div>
+
+    <!-- Sightings log -->
+    <div class="rt-section">
+      <p class="rt-section-label">1. Rogue Sightings Log</p>
+      <div id="rt-sightings-list"></div>
+      <button class="rt-add-btn" onclick="addSighting()">+ Add a sighting</button>
+    </div>
+
+    <!-- Decoding table -->
+    <div class="rt-section" id="rt-decoding-section">
+      <p class="rt-section-label">2. Decoding Table</p>
+      <p class="rt-section-hint">Convert your numbers into letters using the cipher key above.</p>
+      <div id="rt-decoding-table"></div>
+    </div>
+
+    <!-- Final solution -->
+    <div class="rt-section">
+      <p class="rt-section-label">3. Final Solution</p>
+      <p class="rt-section-hint">When decoded, the Rogue Traders' secret HQ is:</p>
+      <div class="rt-solution-row">
+  <input class="rt-solution-input short" type="text" id="rt-word1" placeholder="3" maxlength="3" oninput="saveRogueProgress()" />
+  <span class="rt-solution-slash">/</span>
+  <input class="rt-solution-input long" type="text" id="rt-word2" placeholder="9" maxlength="9" oninput="saveRogueProgress()" />
+  <span class="rt-solution-slash">/</span>
+  <input class="rt-solution-input short" type="text" id="rt-word3" placeholder="3" maxlength="3" oninput="saveRogueProgress()" />
+</div>
+    </div>
+
+    <!-- Bonus round -->
+    <div class="rt-section">
+      <p class="rt-section-label">4. Bonus Round</p>
+      <p class="rt-section-hint">Which rogue trader was your favourite?</p>
+      <input class="rt-input" type="text" id="rt-bonus-shop" placeholder="Shop name" oninput="saveRogueProgress()" />
+      <input class="rt-input" type="text" id="rt-bonus-reason" placeholder="What made it your favourite?" oninput="saveRogueProgress()" style="margin-top:8px;" />
+    </div>
+
+    <!-- Declaration -->
+    <div class="rt-section">
+      <p class="rt-section-label">5. Declaration</p>
+      <p class="rt-section-hint">I confirm I have completed my Rogue Trader investigation to the best of my ability.</p>
+      <input class="rt-input" type="text" id="rt-name" placeholder="Your name" oninput="saveRogueProgress()" />
+      <div class="rt-radio-row">
+        <label class="rt-radio-label">
+          <input type="radio" name="rt-age" value="Adult" onchange="saveRogueProgress()" /> Adult
+        </label>
+        <label class="rt-radio-label">
+          <input type="radio" name="rt-age" value="Child" onchange="saveRogueProgress()" /> Child (under 18)
+        </label>
+      </div>
+    </div>
+
+    <button class="rt-submit-btn" onclick="submitRogueTraders()">Submit My Entry</button>
+    <p class="rt-progress-note">Your progress is saved automatically as you go.</p>
+  </div>
+
+  <!-- Success message -->
+  <div class="rt-success hidden" id="rt-success">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#2C4A3E" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+    <h3>Entry Submitted!</h3>
+    <p>Good luck, agent! Winners will be announced at the Flower Show at 4:30pm on Saturday 11th July.</p>
+    <button class="rt-submit-btn" onclick="closeRogueTraders()">Close</button>
+  </div>
+</div>
 </body>
 </html>
