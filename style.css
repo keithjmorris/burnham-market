@@ -1645,3 +1645,100 @@ body.header-hidden .app-main {
   color: var(--text-mid);
   line-height: 1.5;
 }
+
+/* ── DOCUMENT PREVIEW PANEL ── */
+.doc-panel {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.doc-panel:not(.hidden) {
+  transform: translateX(0);
+}
+
+.doc-header {
+  background: var(--green);
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.doc-back {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.doc-title {
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-content {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+  background: var(--text-dark);
+}
+
+.doc-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.doc-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--radius-sm);
+}
+
+.doc-content .doc-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: white;
+  text-align: center;
+  padding: 40px;
+}
+
+.doc-content .doc-fallback p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.doc-content .doc-open-btn {
+  background: white;
+  color: var(--green);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
+}

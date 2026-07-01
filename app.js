@@ -50,7 +50,7 @@ const CONFIG = {
 
   FLOWER_SHOW_ENTRY_OPEN: false,
 
-  ROGUE_TRADERS_ENTRY_OPEN: false,
+  ROGUE_TRADERS_ENTRY_OPEN: true,
 };
 
 // ── FIREBASE SETUP (Flower Show entries) ──
@@ -607,6 +607,7 @@ function buildEventCard(event) {
   const month   = date.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
   const weekday = date.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
+  const hasDocument = !!event.documentUrl;
   let dateLineHtml;
   if (event.endDate) {
     const endDate = new Date(event.endDate);
@@ -644,6 +645,11 @@ function buildEventCard(event) {
           Directions
         </button>` : ''}
       </div>
+      ${hasDocument ? `
+  <button class="event-action-btn" onclick="openDocPanel('${encodeURIComponent(event.documentUrl)}','${encodeURIComponent(event.title)}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    More info
+  </button>` : ''}
     </div>
   `;
   return card;
@@ -719,12 +725,17 @@ function buildRecurringEventCard(event) {
       </div>
       <p class="event-description">${formatDescription(event.description)}</p>
       <div class="event-actions">
-        ${hasLocation ? `
-        <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-          Directions
-        </button>` : ''}
-      </div>
+  ${hasLocation ? `
+  <button class="event-action-btn" onclick="openDirections(${event.latitude},${event.longitude},'${encodeURIComponent(event.title)}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+    Directions
+  </button>` : ''}
+  ${hasDocument ? `
+  <button class="event-action-btn" onclick="openDocPanel('${encodeURIComponent(event.documentUrl)}','${encodeURIComponent(event.title)}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    More info
+  </button>` : ''}
+</div>
     </div>
   `;
   return card;
@@ -1085,8 +1096,8 @@ function showNewEventForm() {
   document.getElementById('event-location-select').value = '';
   document.getElementById('event-location-custom').classList.add('hidden');
   document.getElementById('event-description').value = '';
-  document.getElementById('admin-word-count').textContent = '0 / 50 words';
-  // Reset event type to one-off
+  document.getElementById('admin-word-count').textContent = '0 / 400 words';
+  document.getElementById('event-document-url').value = '';  // ← ADD THIS
   document.getElementById('event-type-oneoff').checked = true;
   toggleEventTypeFields();
   document.getElementById('admin-form').classList.remove('hidden');
@@ -1117,6 +1128,7 @@ function editEvent(id) {
   document.getElementById('event-date').value         = event.date || '';
   document.getElementById('event-end-date-oneoff').value = event.endDate || '';
   document.getElementById('event-time').value         = event.time || '';
+  document.getElementById('event-document-url').value = event.documentUrl || '';
 }
 
   // Set location dropdown
@@ -1217,6 +1229,7 @@ async function submitEvent() {
       dayOfWeek, time, frequency,
       startDate: startDate || null,
       endDate:   endDate   || null,
+      documentUrl: document.getElementById('event-document-url').value.trim() || null,
       latitude: lat, longitude: lng
     };
   } else {
@@ -1234,6 +1247,7 @@ async function submitEvent() {
     title, date, time, location,
     endDate: endDate || null,
     description: desc,
+    documentUrl: document.getElementById('event-document-url').value.trim() || null,
     latitude: lat, longitude: lng
   };
 }
@@ -1650,6 +1664,54 @@ async function submitRogueTraders() {
     btn.textContent = 'Submit My Entry';
     btn.disabled = false;
   }
+}
+
+// ── DOCUMENT PREVIEW PANEL ──────────────────────
+function openDocPanel(encodedUrl, encodedTitle) {
+  const url   = decodeURIComponent(encodedUrl);
+  const title = decodeURIComponent(encodedTitle);
+
+  document.getElementById('doc-title').textContent = title;
+
+  const content = document.getElementById('doc-content');
+  content.innerHTML = '';
+
+  const ext = url.split('.').pop().toLowerCase().split('?')[0];
+
+  if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+    // Image preview
+    content.innerHTML = `<img src="${url}" alt="${title}" />`;
+  } else if (ext === 'pdf') {
+    // PDF preview — try iframe first, fallback button for mobile
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      // iOS Safari can't embed PDFs in iframes reliably
+      content.innerHTML = `
+        <div class="doc-fallback">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <p>Tap below to open the document</p>
+          <button class="doc-open-btn" onclick="window.open('${url}', '_blank')">Open PDF</button>
+        </div>`;
+    } else {
+      content.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;min-height:80vh;"></iframe>`;
+    }
+  } else {
+    // Unknown type — just offer a link
+    content.innerHTML = `
+      <div class="doc-fallback">
+        <p>Tap below to open this document</p>
+        <button class="doc-open-btn" onclick="window.open('${url}', '_blank')">Open Document</button>
+      </div>`;
+  }
+
+  document.getElementById('doc-panel').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDocPanel() {
+  document.getElementById('doc-panel').classList.add('hidden');
+  document.body.style.overflow = '';
+  document.getElementById('doc-content').innerHTML = '';
 }
     
 

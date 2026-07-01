@@ -241,8 +241,14 @@
   <div class="admin-field">
     <label class="admin-label">Description</label>
     <textarea class="admin-input" id="event-description" rows="6" placeholder="Brief description (max 400 words)" oninput="checkWordCount()"></textarea>
-    <p id="admin-word-count" style="font-size:11px;color:var(--text-light);text-align:right;margin-top:2px;">0 / 50 words</p>
+    <p id="admin-word-count" style="font-size:11px;color:var(--text-light);text-align:right;margin-top:2px;">0 / 400 words</p>
   </div>
+
+  <!-- Document URL (optional) -->
+<div class="admin-field">
+  <label class="admin-label">Document / image URL <span style="font-weight:400;opacity:0.6">(optional — shows a 'More info' button)</span></label>
+  <input class="admin-input" type="url" id="event-document-url" placeholder="https://raw.githubusercontent.com/..." />
+</div>
 
   <div style="display:flex;gap:8px;margin-top:4px;">
     <button class="admin-cancel-btn" onclick="cancelEventForm()">Cancel</button>
@@ -486,6 +492,15 @@
     <p>Good luck, agent! Winners will be announced at the Flower Show at 4:30pm on Saturday 11th July.</p>
     <button class="rt-submit-btn" onclick="closeRogueTraders()">Close</button>
   </div>
+</div>
+
+<!-- ── DOCUMENT PREVIEW PANEL ── -->
+<div class="doc-panel hidden" id="doc-panel">
+  <div class="doc-header">
+    <button class="doc-back" onclick="closeDocPanel()">← Back</button>
+    <p class="doc-title" id="doc-title">More Info</p>
+  </div>
+  <div class="doc-content" id="doc-content"></div>
 </div>
 </body>
 </html>
