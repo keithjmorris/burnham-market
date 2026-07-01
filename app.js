@@ -21,6 +21,7 @@ const CONFIG = {
   FLOWERSHOW_START: new Date('2026-06-15'),
   FLOWERSHOW_END:   new Date('2026-07-14'),
   FLOWERSHOW_IMAGES: [
+  'flowershow22',
   'flowershow1',
   'flowershow2',
   'flowershow21',
