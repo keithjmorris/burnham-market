@@ -1331,6 +1331,23 @@ header.innerHTML = `
   white-space:nowrap;
 ">Flower Show Entry</button>
 ` : ''}
+<a href="https://raw.githubusercontent.com/keithjmorris/burnham-market-images/main/images/flowershow/flowershow15.jpeg" 
+   target="_blank" 
+   rel="noopener"
+   style="
+     background:rgba(255,255,255,0.85);
+     color:var(--green);
+     border:none;
+     border-radius:20px;
+     padding:8px 12px;
+     font-size:12px;
+     font-weight:700;
+     font-family:var(--font-body);
+     cursor:pointer;
+     white-space:nowrap;
+     text-decoration:none;
+     display:inline-block;
+   ">📋 Entry Form</a>
   </div>
   <p class="gallery-header-dates">Friday 11th & Saturday 12th July 2026</p>
 `;
