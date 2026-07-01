@@ -689,6 +689,7 @@ function buildRecurringEventCard(event) {
   const month   = next.toLocaleString('en-GB', { month: 'short' }).toUpperCase();
   const weekday = next.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
+  const hasDocument = !!event.documentUrl;
   const freqLabel   = frequencyLabel(event);
 
   let dateRangeHtml = '';
