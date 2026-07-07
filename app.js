@@ -216,6 +216,7 @@ let headerTapTimer = null;
 let editingEventId = null;
 let eventSortOrder   = 'date';
 let eventTypeFilter  = 'all';
+let deferredInstallPrompt = null;
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -229,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadWeather();
   registerServiceWorker();
   loadEvents();
+  // ── Install prompt ──
+initInstallBanner();
 
   // ── Secret tap sequence on header title ──
   document.querySelector('.app-title').addEventListener('click', function(e) {
@@ -1733,7 +1736,98 @@ function closeDocPanel() {
   document.getElementById('doc-content').innerHTML = '';
 }
     
+// ── INSTALL BANNER ─────────────────────────────
+function initInstallBanner() {
+  // Don't show if already installed or dismissed recently
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  if (localStorage.getItem('installBannerDismissed')) return;
 
+  const isIOS     = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
+  if (isIOS) {
+    // iOS — show after a short delay with manual instructions
+    setTimeout(() => showIOSBanner(), 3000);
+  } else if (isAndroid) {
+    // Android — listen for the native beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      setTimeout(() => showAndroidBanner(), 3000);
+    });
+  }
+
+  // Dismiss button
+  document.getElementById('install-banner-dismiss').addEventListener('click', () => {
+    dismissInstallBanner();
+  });
+}
+
+function showIOSBanner() {
+  const banner = document.getElementById('install-banner');
+  const desc   = document.getElementById('install-banner-desc');
+  const btn    = document.getElementById('install-banner-btn');
+  const steps  = document.getElementById('install-banner-steps');
+
+  desc.textContent = 'Save this app to your home screen for quick access!';
+  btn.textContent  = 'Show me how';
+
+  btn.addEventListener('click', () => {
+    // Toggle the step-by-step instructions
+    if (steps.classList.contains('hidden')) {
+      steps.innerHTML = `
+  <div class="install-step">
+    <div class="install-step-number">1</div>
+    <p class="install-step-text">Tap the <strong>three dots •••</strong> at the bottom right of your browser bar</p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">2</div>
+    <p class="install-step-text">Tap <strong>"Share"</strong> from the menu that appears</p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">3</div>
+    <p class="install-step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">4</div>
+    <p class="install-step-text">Tap <strong>"Add"</strong> — the Burnham Market icon will appear on your home screen!</p>
+  </div>
+`;
+      steps.classList.remove('hidden');
+      btn.textContent = 'Got it ✓';
+    } else {
+      dismissInstallBanner();
+    }
+  });
+
+  banner.classList.remove('hidden');
+}
+
+function showAndroidBanner() {
+  const banner = document.getElementById('install-banner');
+  const desc   = document.getElementById('install-banner-desc');
+  const btn    = document.getElementById('install-banner-btn');
+
+  desc.textContent = 'Save this app to your home screen for quick access!';
+  btn.textContent  = 'Install';
+
+  btn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const result = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    dismissInstallBanner();
+  });
+
+  banner.classList.remove('hidden');
+}
+
+function dismissInstallBanner() {
+  document.getElementById('install-banner').classList.add('hidden');
+  // Remember for 30 days
+  const expiry = Date.now() + (30 * 24 * 60 * 60 * 1000);
+  localStorage.setItem('installBannerDismissed', expiry);
+}
 
 // ── SERVICE WORKER ─────────────────────────────
 function registerServiceWorker() {
