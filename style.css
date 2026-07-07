@@ -1407,7 +1407,7 @@ body.header-hidden .app-main {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(250, 247, 242, 0.82);
+  background: rgba(250, 247, 242, 0.60);
   pointer-events: none;
   z-index: 0;
 }
