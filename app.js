@@ -1758,23 +1758,23 @@ function showIOSBanner() {
     // Toggle the step-by-step instructions
     if (steps.classList.contains('hidden')) {
       steps.innerHTML = `
-        <div class="install-step">
-          <div class="install-step-number">1</div>
-          <p class="install-step-text">Tap the <strong>Share button</strong> at the bottom of your browser (the box with an arrow pointing up)</p>
-        </div>
-        <div class="install-step">
-          <div class="install-step-number">2</div>
-          <p class="install-step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></p>
-        </div>
-        <div class="install-step">
-          <div class="install-step-number">3</div>
-          <p class="install-step-text">Tap <strong>"Add"</strong> in the top right corner</p>
-        </div>
-        <div class="install-step">
-          <div class="install-step-number">4</div>
-          <p class="install-step-text">The <strong>Burnham Market</strong> icon will appear on your home screen!</p>
-        </div>
-      `;
+  <div class="install-step">
+    <div class="install-step-number">1</div>
+    <p class="install-step-text">Tap the <strong>three dots •••</strong> at the bottom right of your browser bar</p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">2</div>
+    <p class="install-step-text">Tap <strong>"Share"</strong> from the menu that appears</p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">3</div>
+    <p class="install-step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+  </div>
+  <div class="install-step">
+    <div class="install-step-number">4</div>
+    <p class="install-step-text">Tap <strong>"Add"</strong> — the Burnham Market icon will appear on your home screen!</p>
+  </div>
+`;
       steps.classList.remove('hidden');
       btn.textContent = 'Got it ✓';
     } else {
