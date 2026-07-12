@@ -46,11 +46,11 @@ const CONFIG = {
 
   // ── SEASONAL TAB CONTROL ──
   SHOW_SEASONAL_TAB: true,
-  SEASONAL_MODE: 'flowershow',
+  SEASONAL_MODE: 'fair',
 
   FLOWER_SHOW_ENTRY_OPEN: false,
 
-  ROGUE_TRADERS_ENTRY_OPEN: true,
+  ROGUE_TRADERS_ENTRY_OPEN: false,
 };
 
 // ── FIREBASE SETUP (Flower Show entries) ──
