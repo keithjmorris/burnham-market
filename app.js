@@ -1407,13 +1407,24 @@ function nextSlide() { goToSlide(galleryIndex + 1); }
 function prevSlide() { goToSlide(galleryIndex - 1); }
 
 function renderFairCards() {
-  showState('cards');
-  const list = document.getElementById('cards-list');
-  list.innerHTML = `
-    <div class="empty-state">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <p>Craft Fair information coming soon!</p>
-    </div>`;
+  showState('gallery');
+  
+  const header = document.getElementById('gallery-header');
+  header.innerHTML = `
+    <p class="gallery-header-title">BM Craft Fair 2026</p>
+    <p class="gallery-header-dates">Saturday 16th August 2026</p>
+  `;
+
+  const track = document.getElementById('gallery-track');
+  const dots  = document.getElementById('gallery-dots');
+  track.innerHTML = `
+    <div class="gallery-slide">
+      <img src="https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/burnhammarketcraftfairposter3.jpg" 
+           alt="BM Craft Fair Poster" 
+           style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);" />
+    </div>
+  `;
+  dots.innerHTML = '';
 }
 
 // ── FLOWER SHOW ENTRY FORM ──────────────────────
