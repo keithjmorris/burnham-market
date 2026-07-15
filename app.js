@@ -898,7 +898,7 @@ function renderMapTab(tab) {
 
     map.invalidateSize();
   }, 50);
-}
+
 
 function addMapMarkers(category, colour, emoji) {
   const entries = allEntries.filter(e => e.category === category);
