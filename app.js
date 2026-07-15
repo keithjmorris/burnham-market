@@ -887,18 +887,6 @@ function renderMapTab(tab) {
   }, 50);
 }
 
-    const legend = document.getElementById('map-legend');
-    legend.innerHTML = '';
-
-    // Show both parking and toilet pins together
-    addMapMarkers('parking', '#2C4A3E', '🅿');
-    addMapMarkers('toilets', '#4A7C8E', '🚻');
-    addLegendItem(legend, '#2C4A3E', 'Car Park');
-    addLegendItem(legend, '#4A7C8E', 'Public Toilets');
-
-    map.invalidateSize();
-  }, 50);
-
 
 function addMapMarkers(category, colour, emoji) {
   const entries = allEntries.filter(e => e.category === category);
