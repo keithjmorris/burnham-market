@@ -871,6 +871,25 @@ function renderMapTab(tab) {
     const legend = document.getElementById('map-legend');
     legend.innerHTML = '';
 
+    // Always show parking and toilets
+    addMapMarkers('parking', '#2C4A3E', '🅿');
+    addMapMarkers('toilets', '#4A7C8E', '🚻');
+    addLegendItem(legend, '#2C4A3E', 'Car Park');
+    addLegendItem(legend, '#4A7C8E', 'Public Toilets');
+
+    // Show temporary Craft Fair parking when seasonal tab is in fair mode
+    if (CONFIG.SHOW_SEASONAL_TAB && CONFIG.SEASONAL_MODE === 'fair') {
+      addMapMarkers('parking-temp', '#C4622D', '🅿');
+      addLegendItem(legend, '#C4622D', 'Craft Fair Parking (16 Aug only)');
+    }
+
+    map.invalidateSize();
+  }, 50);
+}
+
+    const legend = document.getElementById('map-legend');
+    legend.innerHTML = '';
+
     // Show both parking and toilet pins together
     addMapMarkers('parking', '#2C4A3E', '🅿');
     addMapMarkers('toilets', '#4A7C8E', '🚻');
@@ -1411,8 +1430,24 @@ function renderFairCards() {
   
   const header = document.getElementById('gallery-header');
   header.innerHTML = `
-    <p class="gallery-header-title">BM Craft Fair 2026</p>
-    <p class="gallery-header-dates">Saturday 16th August 2026</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <p class="gallery-header-title">BM Craft Fair 2026</p>
+        <p class="gallery-header-dates">Saturday 16th August 2026</p>
+      </div>
+      <button onclick="switchTab('parking')" style="
+        background:white;
+        color:var(--green);
+        border:none;
+        border-radius:20px;
+        padding:8px 12px;
+        font-size:12px;
+        font-weight:700;
+        font-family:var(--font-body);
+        cursor:pointer;
+        white-space:nowrap;
+      ">🅿 Parking</button>
+    </div>
   `;
 
   const track = document.getElementById('gallery-track');
