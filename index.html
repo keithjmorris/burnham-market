@@ -149,6 +149,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
   <script src="app.js"></script>
 
   <!-- ── ADMIN PANEL ── -->
@@ -522,6 +523,14 @@
     <p class="doc-title" id="doc-title">More Info</p>
   </div>
   <div class="doc-content" id="doc-content"></div>
+</div>
+<!-- ── STALL DETAIL PANEL ── -->
+<div class="stall-panel hidden" id="stall-panel">
+  <div class="stall-panel-header">
+    <button class="stall-panel-back" onclick="closeStallPanel()">← Back</button>
+    <p class="stall-panel-title" id="stall-panel-title"></p>
+  </div>
+  <div class="stall-panel-content" id="stall-panel-content"></div>
 </div>
 </body>
 </html>

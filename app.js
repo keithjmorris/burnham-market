@@ -1297,7 +1297,7 @@ function renderSeasonalTab() {
   document.getElementById('weather-card').classList.add('hidden');
   document.querySelector('.app-header').classList.add('hidden');
   document.body.classList.add('header-hidden');
-  showState('gallery');
+  showState('gallery'); // gallery view handles both modes
   if (CONFIG.SEASONAL_MODE === 'flowershow') {
     renderFlowerShowGallery();
   } else {
@@ -1413,41 +1413,198 @@ function goToSlide(index) {
 function nextSlide() { goToSlide(galleryIndex + 1); }
 function prevSlide() { goToSlide(galleryIndex - 1); }
 
+// ── CRAFT FAIR STALLS ──────────────────────────
+let allStalls = [];
+let stallCategoryFilter = '';
+
 function renderFairCards() {
-  showState('gallery');
-  
+  showState('cards');
+  const list = document.getElementById('cards-list');
+  list.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading stalls…</p></div>';
+
+  // Update header
   const header = document.getElementById('gallery-header');
-  header.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <p class="gallery-header-title">BM Craft Fair 2026</p>
-        <p class="gallery-header-dates">Saturday 16th August 2026</p>
+  if (header) {
+    header.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <p class="gallery-header-title">BM Craft Fair 2026</p>
+          <p class="gallery-header-dates">Saturday 16th August 2026</p>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map')" style="
+            background:white;color:var(--green);border:none;border-radius:20px;
+            padding:8px 12px;font-size:12px;font-weight:700;font-family:var(--font-body);
+            cursor:pointer;white-space:nowrap;">🗺 Map</button>
+          <button onclick="switchTab('parking')" style="
+            background:white;color:var(--green);border:none;border-radius:20px;
+            padding:8px 12px;font-size:12px;font-weight:700;font-family:var(--font-body);
+            cursor:pointer;white-space:nowrap;">🅿 Parking</button>
+        </div>
       </div>
-      <button onclick="switchTab('parking')" style="
-        background:white;
-        color:var(--green);
-        border:none;
-        border-radius:20px;
-        padding:8px 12px;
-        font-size:12px;
-        font-weight:700;
-        font-family:var(--font-body);
-        cursor:pointer;
-        white-space:nowrap;
-      ">🅿 Parking</button>
+    `;
+  }
+
+  if (allStalls.length > 0) {
+    renderStallCards();
+    return;
+  }
+
+  flowerShowDb.ref('craft-fair/stalls').once('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      list.innerHTML = '<div class="empty-state"><p>No stalls found.</p></div>';
+      return;
+    }
+    allStalls = Object.values(raw)
+      .sort((a, b) => String(a.stallNumber).localeCompare(String(b.stallNumber)));
+    renderStallCards();
+  });
+}
+
+function renderStallCards() {
+  const list = document.getElementById('cards-list');
+  list.innerHTML = '';
+
+  // Category filter bar
+  const categories = ['All', ...new Set(allStalls.map(s => s.category).filter(Boolean).sort())];
+  const filterBar = document.createElement('div');
+  filterBar.className = 'craft-filter-bar';
+  filterBar.innerHTML = categories.map(cat => `
+    <button class="craft-filter-pill ${(stallCategoryFilter === cat || (cat === 'All' && !stallCategoryFilter)) ? 'active' : ''}"
+      onclick="setStallFilter('${cat}')">
+      ${cat}
+    </button>
+  `).join('');
+  list.appendChild(filterBar);
+
+  const filtered = stallCategoryFilter && stallCategoryFilter !== 'All'
+    ? allStalls.filter(s => s.category === stallCategoryFilter)
+    : allStalls;
+
+  if (filtered.length === 0) {
+    list.innerHTML += '<div class="empty-state"><p>No stalls in this category.</p></div>';
+    return;
+  }
+
+  filtered.forEach(stall => {
+    list.appendChild(buildStallCard(stall));
+  });
+}
+
+function setStallFilter(category) {
+  stallCategoryFilter = category === 'All' ? '' : category;
+  renderStallCards();
+  document.getElementById('app-main').scrollTop = 0;
+}
+
+function buildStallCard(stall) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const hasPhone    = !!stall.phone;
+  const hasWebsite  = !!stall.website;
+  const hasSocial   = !!(stall.instagram || stall.facebook);
+  const isInstagram = !!stall.instagram;
+  const socialUrl   = stall.instagram
+    ? `https://www.instagram.com/${stall.instagram}`
+    : `https://www.facebook.com/${stall.facebook}`;
+
+  const imgHtml = stall.image
+    ? `<img class="card-image" src="${stall.image}" alt="${stall.name}" loading="lazy" onerror="this.style.display='none'">`
+    : `<div class="card-image-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+
+  card.innerHTML = `
+    <div class="card-top">
+      ${imgHtml}
+      <div class="card-info">
+        <p class="card-name">${stall.name || 'Unknown'}</p>
+        <p class="card-description">${stall.description ? stall.description.substring(0, 80) + (stall.description.length > 80 ? '…' : '') : ''}</p>
+        ${stall.category ? `<div class="card-tags"><span class="card-tag">${stall.category}</span></div>` : ''}
+        <p class="stall-number-badge">Stall ${stall.stallNumber || ''}</p>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="card-action-btn ${hasPhone ? '' : 'disabled'}"
+        onclick="${hasPhone ? `callPhone('${stall.phone}')` : ''}" title="Call">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Call
+      </button>
+      <button class="card-action-btn" onclick="openStallDetail('${encodeURIComponent(JSON.stringify(stall))}')" title="Details">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Details
+      </button>
+      <button class="card-action-btn ${hasWebsite ? '' : 'disabled'}"
+        onclick="${hasWebsite ? `openWebsite('${stall.website}')` : ''}" title="Website">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Website
+      </button>
+      <button class="card-action-btn ${hasSocial ? '' : 'disabled'}"
+        onclick="${hasSocial ? `openWebsite('${socialUrl}')` : ''}" title="Social">
+        ${isInstagram ? `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        ` : `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        `}
+        Social
+      </button>
+      <button class="card-action-btn" onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map — Stall ${stall.stallNumber}')" title="Find stall">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Find
+      </button>
+    </div>
+  `;
+  return card;
+}
+
+function openStallDetail(encodedStall) {
+  const stall = JSON.parse(decodeURIComponent(encodedStall));
+  const panel = document.getElementById('stall-panel');
+  const content = document.getElementById('stall-panel-content');
+  document.getElementById('stall-panel-title').textContent = stall.name;
+
+  const hasSocial  = !!(stall.instagram || stall.facebook);
+  const socialUrl  = stall.instagram
+    ? `https://www.instagram.com/${stall.instagram}`
+    : `https://www.facebook.com/${stall.facebook}`;
+  const socialLabel = stall.instagram ? 'Instagram' : 'Facebook';
+
+  content.innerHTML = `
+    ${stall.image ? `<img class="stall-detail-image" src="${stall.image}" alt="${stall.name}" />` : ''}
+    <p class="stall-detail-name">${stall.name}</p>
+    <p class="stall-detail-number">Stall ${stall.stallNumber || ''}</p>
+    ${stall.category ? `<span class="stall-detail-tag">${stall.category}</span>` : ''}
+    <p class="stall-detail-description">${stall.description || ''}</p>
+    <div class="stall-detail-actions">
+      ${stall.phone ? `
+      <button class="stall-detail-btn" onclick="callPhone('${stall.phone}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Call ${stall.phone}
+      </button>` : ''}
+      ${stall.website ? `
+      <button class="stall-detail-btn" onclick="openWebsite('${stall.website}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Visit website
+      </button>` : ''}
+      ${hasSocial ? `
+      <button class="stall-detail-btn" onclick="openWebsite('${socialUrl}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        ${socialLabel}
+      </button>` : ''}
+      <button class="stall-detail-btn" onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map — Stall ${stall.stallNumber}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Find on map (Stall ${stall.stallNumber})
+      </button>
     </div>
   `;
 
-  const track = document.getElementById('gallery-track');
-  const dots  = document.getElementById('gallery-dots');
-  track.innerHTML = `
-    <div class="gallery-slide">
-      <img src="https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/burnhammarketcraftfairposter3.jpg" 
-           alt="BM Craft Fair Poster" 
-           style="max-width:100%;height:auto;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.4);" />
-    </div>
-  `;
-  dots.innerHTML = '';
+  panel.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeStallPanel() {
+  document.getElementById('stall-panel').classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
 // ── FLOWER SHOW ENTRY FORM ──────────────────────
