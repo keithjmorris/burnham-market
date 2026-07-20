@@ -1592,7 +1592,7 @@ function openStallDetail(stallNumber) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
         ${socialLabel}
       </button>` : ''}
-      <button class="stall-detail-btn" onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map — Stall ${stall.stallNumber}')">
+<button class="stall-detail-btn" onclick="openStallMapB('${stall.stallNumber}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Find on map (Stall ${stall.stallNumber})
       </button>
@@ -1619,8 +1619,8 @@ function openStallMapB(stallNumber) {
 
       setTimeout(() => {
         const centre = stallLoc 
-          ? [stallLoc.lat, stallLoc.lng] 
-          : [52.9451, 0.7245];
+  ? [stallLoc.lat, stallLoc.lng + 0.003] 
+  : [52.9455, 0.7260];
         const zoom = stallLoc ? 21 : 18;
         
         const m = L.map('stall-map-leaflet').setView(centre, zoom);
@@ -1634,22 +1634,22 @@ function openStallMapB(stallNumber) {
         locations.forEach(loc => {
           const isTarget = String(loc.stallNumber) === String(stallNumber);
           const icon = L.divIcon({
-            html: `<div style="
-              background:${isTarget ? 'var(--green)' : '#888'};
-              color:white;
-              border-radius:50%;
-              width:${isTarget ? '36px' : '24px'};
-              height:${isTarget ? '36px' : '24px'};
-              display:flex;align-items:center;justify-content:center;
-              font-size:${isTarget ? '11px' : '9px'};
-              font-weight:700;
-              border:2px solid white;
-              box-shadow:0 2px 6px rgba(0,0,0,0.4);
-            ">${loc.stallNumber}</div>`,
-            className: '',
-            iconSize: isTarget ? [36, 36] : [24, 24],
-            iconAnchor: isTarget ? [18, 18] : [12, 12],
-          });
+  html: `<div style="
+    background:${isTarget ? '#2C4A3E' : 'rgba(100,100,100,0.4)'};
+    color:white;
+    border-radius:50%;
+    width:${isTarget ? '40px' : '20px'};
+    height:${isTarget ? '40px' : '20px'};
+    display:flex;align-items:center;justify-content:center;
+    font-size:${isTarget ? '12px' : '8px'};
+    font-weight:700;
+    border:${isTarget ? '3px solid white' : '1px solid rgba(255,255,255,0.5)'};
+    box-shadow:${isTarget ? '0 3px 10px rgba(0,0,0,0.5)' : 'none'};
+  ">${loc.stallNumber}</div>`,
+  className: '',
+  iconSize: isTarget ? [40, 40] : [20, 20],
+  iconAnchor: isTarget ? [20, 20] : [10, 10],
+});
           L.marker([loc.lat, loc.lng], { icon }).addTo(m);
         });
 
