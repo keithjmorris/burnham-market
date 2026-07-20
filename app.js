@@ -1530,7 +1530,7 @@ function buildStallCard(stall) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Call
       </button>
-      <button class="stall-detail-btn" onclick="openStallMap('${stall.stallNumber}')">
+      <button class="stall-detail-btn" onclick="openStallMapB('${stall.stallNumber}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Details
       </button>
@@ -1601,6 +1601,65 @@ function openStallDetail(stallNumber) {
 
   panel.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+}
+
+function openStallMapB(stallNumber) {
+  // Fetch stall locations and show on Leaflet map
+  fetch('https://raw.githubusercontent.com/keithjmorris/burnham-market-data/main/stall-locations.json')
+    .then(r => r.json())
+    .then(locations => {
+      const stallLoc = locations.find(l => String(l.stallNumber) === String(stallNumber));
+      
+      document.getElementById('doc-title').textContent = `Stall ${stallNumber} on map`;
+      const content = document.getElementById('doc-content');
+      content.style.padding = '0';
+      content.innerHTML = `<div id="stall-map-leaflet" style="width:100%;height:100%;"></div>`;
+      document.getElementById('doc-panel').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        const centre = stallLoc 
+          ? [stallLoc.lat, stallLoc.lng] 
+          : [52.9451, 0.7245];
+        const zoom = stallLoc ? 19 : 17;
+        
+        const m = L.map('stall-map-leaflet').setView(centre, zoom);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 21,
+          maxNativeZoom: 19
+        }).addTo(m);
+
+        // Plot all known stall locations as small grey dots
+        locations.forEach(loc => {
+          const isTarget = String(loc.stallNumber) === String(stallNumber);
+          const icon = L.divIcon({
+            html: `<div style="
+              background:${isTarget ? 'var(--green)' : '#888'};
+              color:white;
+              border-radius:50%;
+              width:${isTarget ? '36px' : '24px'};
+              height:${isTarget ? '36px' : '24px'};
+              display:flex;align-items:center;justify-content:center;
+              font-size:${isTarget ? '11px' : '9px'};
+              font-weight:700;
+              border:2px solid white;
+              box-shadow:0 2px 6px rgba(0,0,0,0.4);
+            ">${loc.stallNumber}</div>`,
+            className: '',
+            iconSize: isTarget ? [36, 36] : [24, 24],
+            iconAnchor: isTarget ? [18, 18] : [12, 12],
+          });
+          L.marker([loc.lat, loc.lng], { icon }).addTo(m);
+        });
+
+        m.invalidateSize();
+      }, 100);
+    })
+    .catch(err => {
+      console.error('Could not load stall locations:', err);
+      openStallMap(stallNumber); // Fall back to static map
+    });
 }
 
 function closeStallPanel() {
