@@ -1602,61 +1602,74 @@ function openStallDetail(stallNumber) {
 }
 
 function openStallMapB(stallNumber) {
-  // Fetch stall locations and show on Leaflet map
   fetch('https://raw.githubusercontent.com/keithjmorris/burnham-market-data/main/stall-locations.json')
     .then(r => r.json())
     .then(locations => {
       const stallLoc = locations.find(l => String(l.stallNumber) === String(stallNumber));
-      
-      document.getElementById('doc-title').textContent = `Stall ${stallNumber} on map`;
+
+      document.getElementById('doc-title').textContent = `Stall ${stallNumber} — tap to find on map`;
       const content = document.getElementById('doc-content');
       content.style.padding = '0';
+      content.style.position = 'relative';
       content.innerHTML = `<div id="stall-map-leaflet" style="width:100%;height:100%;"></div>`;
       document.getElementById('doc-panel').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const centre = stallLoc 
-  ? [stallLoc.lat, stallLoc.lng + 0.003] 
-  : [52.9455, 0.7260];
-        const zoom = stallLoc ? 21 : 18;
-        
-        const m = L.map('stall-map-leaflet').setView(centre, zoom);
+        // Centre on selected stall if found, otherwise village centre
+        const centre = stallLoc
+          ? [stallLoc.lat, stallLoc.lng]
+          : [52.9455, 0.7260];
+        const zoom = stallLoc ? 20 : 18;
+
+        const m = L.map('stall-map-leaflet', {
+          center: centre,
+          zoom: zoom,
+          zoomControl: true
+        });
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors',
           maxZoom: 21,
           maxNativeZoom: 19
         }).addTo(m);
 
-        // Plot all known stall locations as small grey dots
+        // Plot all stalls
         locations.forEach(loc => {
           const isTarget = String(loc.stallNumber) === String(stallNumber);
-          const icon = L.divIcon({
-  html: `<div style="
-    background:${isTarget ? '#E8380D' : 'rgba(150,150,150,0.5)'};
-    color:white;
-    border-radius:50%;
-    width:${isTarget ? '48px' : '22px'};
-    height:${isTarget ? '48px' : '22px'};
-    display:flex;align-items:center;justify-content:center;
-    font-size:${isTarget ? '13px' : '8px'};
-    font-weight:700;
-    border:${isTarget ? '3px solid white' : '1px solid rgba(255,255,255,0.6)'};
-    box-shadow:${isTarget ? '0 4px 14px rgba(232,56,13,0.6)' : 'none'};
-  ">${loc.stallNumber}</div>`,
-  className: '',
-  iconSize: isTarget ? [48, 48] : [22, 22],
-  iconAnchor: isTarget ? [24, 24] : [11, 11],
-});
-          L.marker([loc.lat, loc.lng], { icon }).addTo(m);
+
+          if (isTarget) {
+            // Target stall — large red marker
+            const targetIcon = L.divIcon({
+              html: '<div style="background:#E8380D;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 0 0 3px #E8380D,0 4px 12px rgba(0,0,0,0.5);">' + loc.stallNumber + '</div>',
+              className: '',
+              iconSize: [44, 44],
+              iconAnchor: [22, 22],
+            });
+            L.marker([loc.lat, loc.lng], { icon: targetIcon }).addTo(m);
+          } else {
+            // Other stalls — small grey dot, no label
+            const otherIcon = L.divIcon({
+              html: '<div style="background:rgba(120,120,120,0.5);border-radius:50%;width:16px;height:16px;border:1px solid rgba(255,255,255,0.5);"></div>',
+              className: '',
+              iconSize: [16, 16],
+              iconAnchor: [8, 8],
+            });
+            L.marker([loc.lat, loc.lng], { icon: otherIcon }).addTo(m);
+          }
         });
 
+        // Pan to selected stall
+        if (stallLoc) {
+          m.setView([stallLoc.lat, stallLoc.lng], zoom);
+        }
+
         m.invalidateSize();
-      }, 100);
+      }, 150);
     })
     .catch(err => {
       console.error('Could not load stall locations:', err);
-      openStallMap(stallNumber); // Fall back to static map
+      openStallMap(stallNumber);
     });
 }
 
