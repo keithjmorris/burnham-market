@@ -1530,10 +1530,10 @@ function buildStallCard(stall) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         Call
       </button>
-      <button class="stall-detail-btn" onclick="openStallMapB('${stall.stallNumber}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Details
-      </button>
+      <button class="card-action-btn" onclick="openStallDetail('${stall.stallNumber}')" title="Details">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Details
+</button>
       <button class="card-action-btn ${hasWebsite ? '' : 'disabled'}"
         onclick="${hasWebsite ? `openWebsite('${stall.website}')` : ''}" title="Website">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -1548,7 +1548,7 @@ function buildStallCard(stall) {
         `}
         Social
       </button>
-      <button class="card-action-btn" onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map — Stall ${stall.stallNumber}')" title="Find stall">
+      <button class="card-action-btn" onclick="openStallMapB('${stall.stallNumber}')" title="Find stall">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         Find
       </button>
@@ -1621,7 +1621,7 @@ function openStallMapB(stallNumber) {
         const centre = stallLoc 
           ? [stallLoc.lat, stallLoc.lng] 
           : [52.9451, 0.7245];
-        const zoom = stallLoc ? 19 : 17;
+        const zoom = stallLoc ? 21 : 18;
         
         const m = L.map('stall-map-leaflet').setView(centre, zoom);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
