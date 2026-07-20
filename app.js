@@ -893,20 +893,22 @@ function addMapMarkers(category, colour, emoji) {
   entries.forEach(entry => {
     if (!entry.latitude || !entry.longitude) return;
     const icon = L.divIcon({
-      html: `<div style="
-        background:${colour};
-        color:white;
-        border-radius:50%;
-        width:36px;height:36px;
-        display:flex;align-items:center;justify-content:center;
-        font-size:16px;
-        border:2px solid white;
-        box-shadow:0 2px 6px rgba(0,0,0,0.3);
-      ">${emoji}</div>`,
-      className: '',
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
-    });
+  html: `<div style="
+    background:${isTarget ? '#E8380D' : 'rgba(150,150,150,0.5)'};
+    color:white;
+    border-radius:50%;
+    width:${isTarget ? '48px' : '22px'};
+    height:${isTarget ? '48px' : '22px'};
+    display:flex;align-items:center;justify-content:center;
+    font-size:${isTarget ? '13px' : '8px'};
+    font-weight:700;
+    border:${isTarget ? '3px solid white' : '1px solid rgba(255,255,255,0.6)'};
+    box-shadow:${isTarget ? '0 4px 14px rgba(232,56,13,0.6)' : 'none'};
+  ">${loc.stallNumber}</div>`,
+  className: '',
+  iconSize: isTarget ? [48, 48] : [22, 22],
+  iconAnchor: isTarget ? [24, 24] : [11, 11],
+});
     L.marker([entry.latitude, entry.longitude], { icon })
       .bindPopup(`<strong>${entry.name}</strong><br>${entry.description || ''}`)
       .addTo(map);
