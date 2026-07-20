@@ -1635,20 +1635,20 @@ function openStallMapB(stallNumber) {
           const isTarget = String(loc.stallNumber) === String(stallNumber);
           const icon = L.divIcon({
   html: `<div style="
-    background:${isTarget ? '#2C4A3E' : 'rgba(100,100,100,0.4)'};
+    background:${isTarget ? '#E8380D' : 'rgba(150,150,150,0.5)'};
     color:white;
     border-radius:50%;
-    width:${isTarget ? '40px' : '20px'};
-    height:${isTarget ? '40px' : '20px'};
+    width:${isTarget ? '48px' : '22px'};
+    height:${isTarget ? '48px' : '22px'};
     display:flex;align-items:center;justify-content:center;
-    font-size:${isTarget ? '12px' : '8px'};
+    font-size:${isTarget ? '13px' : '8px'};
     font-weight:700;
-    border:${isTarget ? '3px solid white' : '1px solid rgba(255,255,255,0.5)'};
-    box-shadow:${isTarget ? '0 3px 10px rgba(0,0,0,0.5)' : 'none'};
+    border:${isTarget ? '3px solid white' : '1px solid rgba(255,255,255,0.6)'};
+    box-shadow:${isTarget ? '0 4px 14px rgba(232,56,13,0.6)' : 'none'};
   ">${loc.stallNumber}</div>`,
   className: '',
-  iconSize: isTarget ? [40, 40] : [20, 20],
-  iconAnchor: isTarget ? [20, 20] : [10, 10],
+  iconSize: isTarget ? [48, 48] : [22, 22],
+  iconAnchor: isTarget ? [24, 24] : [11, 11],
 });
           L.marker([loc.lat, loc.lng], { icon }).addTo(m);
         });
