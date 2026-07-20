@@ -1295,12 +1295,18 @@ let galleryStartX = 0;
 
 function renderSeasonalTab() {
   document.getElementById('weather-card').classList.add('hidden');
-  document.querySelector('.app-header').classList.add('hidden');
-  document.body.classList.add('header-hidden');
-  showState('gallery'); // gallery view handles both modes
+  
   if (CONFIG.SEASONAL_MODE === 'flowershow') {
+    document.querySelector('.app-header').classList.add('hidden');
+    document.body.classList.add('header-hidden');
+    showState('gallery');
     renderFlowerShowGallery();
   } else {
+    // Craft Fair — show normal header
+    document.querySelector('.app-header').classList.remove('hidden');
+    document.body.classList.remove('header-hidden');
+    document.getElementById('header-subtitle').textContent = 'Burnham Market Craft Fair';
+    showState('cards');
     renderFairCards();
   }
 }
@@ -1418,37 +1424,14 @@ let allStalls = [];
 let stallCategoryFilter = '';
 
 function renderFairCards() {
-  showState('cards');
-  const list = document.getElementById('cards-list');
-  list.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading stalls…</p></div>';
-
-  // Update header
-  const header = document.getElementById('gallery-header');
-  if (header) {
-    header.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <p class="gallery-header-title">BM Craft Fair 2026</p>
-          <p class="gallery-header-dates">Saturday 16th August 2026</p>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map')" style="
-            background:white;color:var(--green);border:none;border-radius:20px;
-            padding:8px 12px;font-size:12px;font-weight:700;font-family:var(--font-body);
-            cursor:pointer;white-space:nowrap;">🗺 Map</button>
-          <button onclick="switchTab('parking')" style="
-            background:white;color:var(--green);border:none;border-radius:20px;
-            padding:8px 12px;font-size:12px;font-weight:700;font-family:var(--font-body);
-            cursor:pointer;white-space:nowrap;">🅿 Parking</button>
-        </div>
-      </div>
-    `;
-  }
-
+  // Load stalls from Firebase
   if (allStalls.length > 0) {
     renderStallCards();
     return;
   }
+
+  const list = document.getElementById('cards-list');
+  list.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading stalls…</p></div>';
 
   flowerShowDb.ref('craft-fair/stalls').once('value', snap => {
     const raw = snap.val();
@@ -1465,6 +1448,23 @@ function renderFairCards() {
 function renderStallCards() {
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
+
+  // Action buttons bar
+  const actionBar = document.createElement('div');
+  actionBar.style.cssText = 'display:flex;gap:8px;padding:12px 16px;background:white;border-bottom:1px solid var(--cream-dark);';
+  actionBar.innerHTML = `
+    <button onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map')" style="
+      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
+      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+      🗺 View Map
+    </button>
+    <button onclick="switchTab('parking')" style="
+      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
+      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+      🅿 Parking
+    </button>
+  `;
+  list.appendChild(actionBar);
 
   // Category filter bar
   const categories = ['All', ...new Set(allStalls.map(s => s.category).filter(Boolean).sort())];
@@ -1604,8 +1604,10 @@ function openStallDetail(encodedStall) {
 
 function closeStallPanel() {
   document.getElementById('stall-panel').classList.add('hidden');
+  document.getElementById('doc-panel').classList.add('hidden');
   document.body.style.overflow = '';
 }
+
 
 // ── FLOWER SHOW ENTRY FORM ──────────────────────
 function openEntryForm() {
