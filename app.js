@@ -1606,7 +1606,6 @@ function openStallMapB(stallNumber) {
     .then(r => r.json())
     .then(locations => {
       const stallLoc = locations.find(l => String(l.stallNumber) === String(stallNumber));
-console.log('Looking for stall:', stallNumber, 'Found:', stallLoc, 'All stall numbers:', locations.map(l => l.stallNumber));
       document.getElementById('doc-title').textContent = `Stall ${stallNumber} — tap to find on map`;
       const content = document.getElementById('doc-content');
       content.style.padding = '0';
@@ -1635,42 +1634,33 @@ console.log('Looking for stall:', stallNumber, 'Found:', stallLoc, 'All stall nu
         }).addTo(m);
 
         // Plot all stalls
-        locations.forEach(loc => {
-          const isTarget = String(loc.stallNumber) === String(stallNumber);
-console.log('Comparing:', String(loc.stallNumber), '===', String(stallNumber), ':', String(loc.stallNumber) === String(stallNumber));
-          if (isTarget) {
-  const targetHtml = '<div style="background:#E8380D;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 0 0 3px #E8380D,0 4px 12px rgba(0,0,0,0.5);">' + loc.stallNumber + '</div>';
+        // Only plot the selected stall
+if (stallLoc) {
+  const targetHtml = '<div style="background:#E8380D;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.5);">' + stallNumber + '</div>';
   const targetIcon = L.divIcon({
     html: targetHtml,
     className: '',
-    iconSize: [44, 44],
-    iconAnchor: [22, 22],
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
-  L.marker([loc.lat, loc.lng], { icon: targetIcon }).addTo(m);
-} else {
-  const otherHtml = '<div style="background:rgba(120,120,120,0.6);border-radius:50%;width:18px;height:18px;border:2px solid white;font-size:8px;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">' + loc.stallNumber + '</div>';
-  const otherIcon = L.divIcon({
-    html: otherHtml,
-    className: '',
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-  });
-  L.marker([loc.lat, loc.lng], { icon: otherIcon }).addTo(m);
+  L.marker([stallLoc.lat, stallLoc.lng], { icon: targetIcon }).addTo(m);
 }
-        });
 
-        // Pan to selected stall
-        if (stallLoc) {
-          m.setView([stallLoc.lat, stallLoc.lng], zoom);
-        }
+// Show user's location as blue dot
+m.locate({ setView: false, watch: false, enableHighAccuracy: true });
+m.on('locationfound', function(e) {
+  const userIcon = L.divIcon({
+    html: '<div style="background:#4A90E2;border-radius:50%;width:16px;height:16px;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+    className: '',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+  L.marker(e.latlng, { icon: userIcon }).addTo(m);
+});
 
-        m.invalidateSize();
-      }, 150);
-    })
-    .catch(err => {
-      console.error('Could not load stall locations:', err);
-      openStallMap(stallNumber);
-    });
+m.invalidateSize();
+if (stallLoc) {
+  m.setView([stallLoc.lat, stallLoc.lng], zoom, { animate: false });
 }
 
 function closeStallPanel() {
