@@ -1456,11 +1456,11 @@ function renderStallCards() {
       padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
       🗺 View Map
     </button>
-    <button onclick="switchTab('parking')" style="
-      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
-      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
-      🅿 Parking
-    </button>
+    <button onclick="previousTab='seasonal';switchTab('parking')" style="
+  flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
+  padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+  🅿 Parking
+</button>
   `;
   list.appendChild(actionBar);
 
