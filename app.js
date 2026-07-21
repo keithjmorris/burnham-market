@@ -1606,6 +1606,7 @@ function openStallMapB(stallNumber) {
     .then(r => r.json())
     .then(locations => {
       const stallLoc = locations.find(l => String(l.stallNumber) === String(stallNumber));
+console.log('Looking for stall:', stallNumber, 'Found:', stallLoc, 'All stall numbers:', locations.map(l => l.stallNumber));
       document.getElementById('doc-title').textContent = `Stall ${stallNumber} — tap to find on map`;
       const content = document.getElementById('doc-content');
       content.style.padding = '0';
@@ -1633,7 +1634,6 @@ function openStallMapB(stallNumber) {
           maxNativeZoom: 19
         }).addTo(m);
 
-        // Plot all stalls
         // Only plot the selected stall
 if (stallLoc) {
   const targetHtml = '<div style="background:#E8380D;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.5);">' + stallNumber + '</div>';
@@ -1661,6 +1661,13 @@ m.on('locationfound', function(e) {
 m.invalidateSize();
 if (stallLoc) {
   m.setView([stallLoc.lat, stallLoc.lng], zoom, { animate: false });
+}
+      }, 150);
+    })
+    .catch(err => {
+      console.error('Could not load stall locations:', err);
+      openStallMap(stallNumber);
+    });
 }
 
 function closeStallPanel() {
