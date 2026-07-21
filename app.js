@@ -1639,25 +1639,24 @@ function openStallMapB(stallNumber) {
           const isTarget = String(loc.stallNumber) === String(stallNumber);
 
           if (isTarget) {
-            // Target stall — large red marker
-            const targetIcon = L.divIcon({
-              html: '<div style="background:#E8380D;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 0 0 3px #E8380D,0 4px 12px rgba(0,0,0,0.5);">' + loc.stallNumber + '</div>',
-              className: '',
-              iconSize: [44, 44],
-              iconAnchor: [22, 22],
-            });
-            L.marker([loc.lat, loc.lng], { icon: targetIcon }).addTo(m);
-          } else {
-            // Other stalls — small grey dot, no label
-            const otherIcon = L.divIcon({
-              html: '<div style="background:rgba(120,120,120,0.5);border-radius:50%;width:16px;height:16px;border:1px solid rgba(255,255,255,0.5);"></div>',
-              className: '',
-              iconSize: [16, 16],
-              iconAnchor: [8, 8],
-            });
-            L.marker([loc.lat, loc.lng], { icon: otherIcon }).addTo(m);
-          }
-        });
+  const targetHtml = '<div style="background:#E8380D;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 0 0 3px #E8380D,0 4px 12px rgba(0,0,0,0.5);">' + loc.stallNumber + '</div>';
+  const targetIcon = L.divIcon({
+    html: targetHtml,
+    className: '',
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+  });
+  L.marker([loc.lat, loc.lng], { icon: targetIcon }).addTo(m);
+} else {
+  const otherHtml = '<div style="background:rgba(120,120,120,0.6);border-radius:50%;width:18px;height:18px;border:2px solid white;font-size:8px;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">' + loc.stallNumber + '</div>';
+  const otherIcon = L.divIcon({
+    html: otherHtml,
+    className: '',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+  L.marker([loc.lat, loc.lng], { icon: otherIcon }).addTo(m);
+}
 
         // Pan to selected stall
         if (stallLoc) {
