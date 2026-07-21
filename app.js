@@ -1657,6 +1657,7 @@ function openStallMapB(stallNumber) {
   });
   L.marker([loc.lat, loc.lng], { icon: otherIcon }).addTo(m);
 }
+        });
 
         // Pan to selected stall
         if (stallLoc) {
