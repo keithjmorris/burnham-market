@@ -1606,7 +1606,7 @@ function openStallMapB(stallNumber) {
     .then(r => r.json())
     .then(locations => {
       const stallLoc = locations.find(l => String(l.stallNumber) === String(stallNumber));
-
+console.log('Looking for stall:', stallNumber, 'Found:', stallLoc, 'All stall numbers:', locations.map(l => l.stallNumber));
       document.getElementById('doc-title').textContent = `Stall ${stallNumber} — tap to find on map`;
       const content = document.getElementById('doc-content');
       content.style.padding = '0';
@@ -1637,7 +1637,7 @@ function openStallMapB(stallNumber) {
         // Plot all stalls
         locations.forEach(loc => {
           const isTarget = String(loc.stallNumber) === String(stallNumber);
-
+console.log('Comparing:', String(loc.stallNumber), '===', String(stallNumber), ':', String(loc.stallNumber) === String(stallNumber));
           if (isTarget) {
   const targetHtml = '<div style="background:#E8380D;color:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;border:3px solid white;box-shadow:0 0 0 3px #E8380D,0 4px 12px rgba(0,0,0,0.5);">' + loc.stallNumber + '</div>';
   const targetIcon = L.divIcon({
