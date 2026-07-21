@@ -868,8 +868,22 @@ function renderMapTab(tab) {
       });
     }
 
+    
     const legend = document.getElementById('map-legend');
-    legend.innerHTML = '';
+legend.innerHTML = '';
+
+// Add back button if we came from Craft Fair
+if (previousTab) {
+  const backBtn = document.createElement('button');
+  backBtn.textContent = '← Back to Craft Fair';
+  backBtn.style.cssText = 'background:var(--green);color:white;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;font-family:var(--font-body);cursor:pointer;margin-right:auto;';
+  backBtn.onclick = () => {
+    const dest = previousTab;
+    previousTab = null;
+    switchTab(dest);
+  };
+  legend.appendChild(backBtn);
+}
 
     // Always show parking and toilets
     addMapMarkers('parking', '#2C4A3E', '🅿');
