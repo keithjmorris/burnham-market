@@ -45,6 +45,12 @@ const CONFIG = {
   // ── ROGUE TRADERS ──
   ROGUE_TRADERS_END: new Date('2026-07-11T23:59:59'),
 
+  // ── MONTHLY MARKET ──
+MARKET_DATES_2026: [
+  '2026-03-28', '2026-04-25', '2026-05-23',
+  '2026-06-27', '2026-07-25', '2026-08-22', '2026-09-19'
+],
+
   // ── SEASONAL TAB CONTROL ──
   SHOW_SEASONAL_TAB: true,
   SEASONAL_MODE: 'fair',
@@ -85,6 +91,8 @@ const ROGUE_CIPHER = {};
 });
 
 let rogueSightings = [];
+let allMarketStalls = [];
+let marketCategoryFilter = '';
 
 // ── WEATHER ────────────────────────────────────
 const WMO_CODES = {
@@ -621,6 +629,7 @@ function buildEventCard(event) {
   } else {
     dateLineHtml = `${weekday} ${event.time}`;
   }
+  const isMarketEvent = (event.title || '').toLowerCase().includes('market');
 
   card.innerHTML = `
     <div class="event-header">
@@ -654,6 +663,11 @@ function buildEventCard(event) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     More info
   </button>` : ''}
+  ${isMarketEvent ? `
+<button class="event-action-btn" onclick="openMarketPanel('${event.date}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  View Stalls
+</button>` : ''}
     </div>
   `;
   return card;
@@ -740,6 +754,11 @@ function buildRecurringEventCard(event) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
     More info
   </button>` : ''}
+  ${isMarketEvent ? `
+<button class="event-action-btn" onclick="openMarketPanel('${event.date}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  View Stalls
+</button>` : ''}
 </div>
     </div>
   `;
@@ -2135,4 +2154,149 @@ function registerServiceWorker() {
   //     .then(() => console.log('Service Worker registered'))
   //     .catch(err => console.warn('Service Worker registration failed:', err));
   // }
+}
+
+// ── MONTHLY MARKET HELPERS ──────────────────────
+function getCurrentMarketMonth() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getNextMarketDate() {
+  const now = new Date();
+  const upcoming = CONFIG.MARKET_DATES_2026
+    .map(d => new Date(d))
+    .filter(d => d >= now)
+    .sort((a, b) => a - b);
+  return upcoming.length > 0 ? upcoming[0] : null;
+}
+
+function isMarketStallActive(stall) {
+  const currentMonth = getCurrentMarketMonth();
+  return stall.activeMonths && stall.activeMonths.includes(currentMonth);
+}
+
+// ── MONTHLY MARKET PANEL ───────────────────────
+function openMarketPanel(dateStr) {
+  const date = new Date(dateStr);
+  const dateLabel = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('market-panel-title').textContent = `Burnham Market — ${dateLabel}`;
+  document.getElementById('market-panel').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  if (allMarketStalls.length > 0) {
+    renderMarketStalls();
+    return;
+  }
+
+  document.getElementById('market-stall-list').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading stalls…</p></div>';
+
+  flowerShowDb.ref('monthly-market/stalls').once('value', snap => {
+    const raw = snap.val();
+    if (!raw) {
+      document.getElementById('market-stall-list').innerHTML = '<div class="empty-state"><p>No stalls registered yet.</p></div>';
+      return;
+    }
+    allMarketStalls = Object.values(raw)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    renderMarketStalls();
+  });
+}
+
+function closeMarketPanel() {
+  document.getElementById('market-panel').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function renderMarketStalls() {
+  const list = document.getElementById('market-stall-list');
+  const filterBar = document.getElementById('market-filter-bar');
+  list.innerHTML = '';
+
+  // Category filter pills
+  const categories = ['All', ...new Set(allMarketStalls.map(s => s.category).filter(Boolean).sort())];
+  filterBar.innerHTML = categories.map(cat => `
+    <button class="market-filter-pill ${(marketCategoryFilter === cat || (cat === 'All' && !marketCategoryFilter)) ? 'active' : ''}"
+      onclick="setMarketFilter('${cat}')">
+      ${cat}
+    </button>
+  `).join('');
+
+  const filtered = marketCategoryFilter && marketCategoryFilter !== 'All'
+    ? allMarketStalls.filter(s => s.category === marketCategoryFilter)
+    : allMarketStalls;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No stalls in this category.</p></div>';
+    return;
+  }
+
+  // Sort: active stalls first, then inactive
+  const sorted = [...filtered].sort((a, b) => {
+    const aActive = isMarketStallActive(a) ? 0 : 1;
+    const bActive = isMarketStallActive(b) ? 0 : 1;
+    return aActive - bActive;
+  });
+
+  sorted.forEach(stall => {
+    list.appendChild(buildMarketStallCard(stall));
+  });
+}
+
+function setMarketFilter(category) {
+  marketCategoryFilter = category === 'All' ? '' : category;
+  renderMarketStalls();
+  document.getElementById('market-stall-list').scrollTop = 0;
+}
+
+function buildMarketStallCard(stall) {
+  const card = document.createElement('div');
+  const active = isMarketStallActive(stall);
+  card.className = `card${active ? '' : ' market-inactive'}`;
+
+  const hasPhone   = !!stall.phone;
+  const hasWebsite = !!stall.website;
+  const hasSocial  = !!(stall.instagram || stall.facebook);
+  const isInstagram = !!stall.instagram;
+  const socialUrl  = stall.instagram
+    ? `https://www.instagram.com/${stall.instagram}`
+    : `https://www.facebook.com/${stall.facebook}`;
+
+  const imgHtml = stall.image
+    ? `<img class="card-image" src="${stall.image}" alt="${stall.name}" loading="lazy" onerror="this.style.display='none'">`
+    : `<div class="card-image-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+
+  card.innerHTML = `
+    <div class="card-top">
+      ${imgHtml}
+      <div class="card-info">
+        <p class="card-name">${stall.name || 'Unknown'}</p>
+        <p class="card-description">${stall.description ? stall.description.substring(0, 80) + (stall.description.length > 80 ? '…' : '') : ''}</p>
+        ${stall.category ? `<div class="card-tags"><span class="card-tag">${stall.category}</span></div>` : ''}
+        ${!active ? `<span class="market-inactive-badge">Not at this month's market</span>` : ''}
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="card-action-btn ${hasPhone ? '' : 'disabled'}"
+        onclick="${hasPhone ? `callPhone('${stall.phone}')` : ''}" title="Call">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.5 12 19.79 19.79 0 0 1 1.15 3.18 2 2 0 0 1 3.13 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5.47 5.47l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Call
+      </button>
+      <button class="card-action-btn ${hasWebsite ? '' : 'disabled'}"
+        onclick="${hasWebsite ? `openWebsite('${stall.website}')` : ''}" title="Website">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Website
+      </button>
+      <button class="card-action-btn ${hasSocial ? '' : 'disabled'}"
+        onclick="${hasSocial ? `openWebsite('${socialUrl}')` : ''}" title="Social">
+        ${isInstagram ? `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        ` : `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        `}
+        Social
+      </button>
+    </div>
+  `;
+  return card;
 }

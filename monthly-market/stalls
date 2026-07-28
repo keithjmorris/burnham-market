@@ -1,0 +1,49 @@
+
+  "stall-002": {
+    "name": "Sea Glass Studio",
+    "description": "Handmade jewellery and artwork using sea glass collected from Norfolk beaches.",
+    "category": "Jewellery",
+    "phone": "",
+    "website": "",
+    "instagram": "seaglassstudio_norfolk",
+    "facebook": "",
+    "image": "",
+    "activeMonths": ["2026-04", "2026-05", "2026-07", "2026-09"],
+    "submittedAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stall-003": {
+    "name": "The Norfolk Baker",
+    "description": "Artisan sourdough breads, pastries and cakes baked fresh each market day.",
+    "category": "Bakery",
+    "phone": "07700 900456",
+    "website": "https://www.thenorfolkbaker.co.uk",
+    "instagram": "",
+    "facebook": "TheNorfolkBaker",
+    "image": "",
+    "activeMonths": ["2026-03", "2026-05", "2026-06", "2026-08"],
+    "submittedAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stall-004": {
+    "name": "Coastal Ceramics",
+    "description": "Hand-thrown pottery inspired by the North Norfolk coast. Mugs, bowls, vases and decorative pieces.",
+    "category": "Ceramics & Pottery",
+    "phone": "",
+    "website": "https://www.coastalceramics.co.uk",
+    "instagram": "coastalceramics",
+    "facebook": "",
+    "image": "",
+    "activeMonths": ["2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09"],
+    "submittedAt": "2026-01-01T00:00:00.000Z"
+  },
+  "stall-005": {
+    "name": "Wild Norfolk Plants",
+    "description": "Native Norfolk wildflowers, herbs and vegetable plants. Grown without pesticides on our smallholding.",
+    "category": "Plants & Flowers",
+    "phone": "07700 900789",
+    "website": "",
+    "instagram": "wildnorfolkplants",
+    "facebook": "WildNorfolkPlants",
+    "image": "",
+    "activeMonths": ["2026-05", "2026-06", "2026-07", "2026-09"],
+    "submittedAt": "2026-01-01T00:00:00.000Z"
+  }
