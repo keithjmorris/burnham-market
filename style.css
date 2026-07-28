@@ -2165,3 +2165,14 @@ body.header-hidden .app-main {
   min-height: 56px;
   padding-bottom: 4px;
 }
+
+.market-card-actions {
+  grid-template-columns: repeat(3, 1fr);
+  height: auto !important;
+  min-height: 60px;
+}
+
+.market-card-actions .card-action-btn {
+  height: auto !important;
+  min-height: 60px;
+}
