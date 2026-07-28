@@ -872,6 +872,10 @@ function placeholderSVG() {
 
 // ── MAP TABS ───────────────────────────────────
 function renderMapTab(tab) {
+   if (allEntries.length === 0) {
+    setTimeout(() => renderMapTab(tab), 500);
+    return;
+  }
   showState('map');
 
   setTimeout(() => {
