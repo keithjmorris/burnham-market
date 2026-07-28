@@ -93,6 +93,7 @@ const ROGUE_CIPHER = {};
 let rogueSightings = [];
 let allMarketStalls = [];
 let marketCategoryFilter = '';
+let previousTab = null;
 
 // ── WEATHER ────────────────────────────────────
 const WMO_CODES = {
