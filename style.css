@@ -2155,3 +2155,7 @@ body.header-hidden .app-main {
   border-radius: 20px;
   margin-top: 4px;
 }
+
+.market-card-actions {
+  grid-template-columns: repeat(3, 1fr);
+}
