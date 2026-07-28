@@ -2176,3 +2176,7 @@ body.header-hidden .app-main {
   height: auto !important;
   min-height: 60px;
 }
+
+.market-stall-list .card {
+  flex-shrink: 0;
+}
