@@ -672,7 +672,8 @@ function buildEventCard(event) {
   } else {
     dateLineHtml = `${weekday} ${event.time}`;
   }
-  const isMarketEvent = (event.title || '').toLowerCase().includes('market');
+  const isMarketEvent = (event.title || '').toLowerCase().includes('burnhams market') || 
+                      (event.title || '').toLowerCase().includes('monthly market');
 
   card.innerHTML = `
     <div class="event-header">
@@ -751,7 +752,8 @@ function buildRecurringEventCard(event) {
   const weekday = next.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
   const hasDocument = !!event.documentUrl;
-  const isMarketEvent = (event.title || '').toLowerCase().includes('market');
+  const isMarketEvent = (event.title || '').toLowerCase().includes('burnhams market') || 
+                      (event.title || '').toLowerCase().includes('monthly market');
   const freqLabel   = frequencyLabel(event);
 
   let dateRangeHtml = '';
@@ -1124,7 +1126,6 @@ function showAdminEvents() {
   document.getElementById('admin-form').classList.add('hidden');
   renderAdminEventsList();
 }
-
 function renderAdminEventsList() {
   const list = document.getElementById('admin-events-list');
   list.innerHTML = '';
@@ -1134,13 +1135,11 @@ function renderAdminEventsList() {
     return;
   }
 
-  const oneOff    = allEvents.filter(e => !e.type || e.type === 'one-off')
-                              .sort((a, b) => new Date(a.date) - new Date(b.date));
+  const oneOff = allEvents.filter(e => !e.type || e.type === 'one-off')
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
   const recurring = allEvents.filter(e => e.type === 'recurring')
-                              .sort((a, b) => {
-                                const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
-                                return days.indexOf(a.dayOfWeek) - days.indexOf(b.dayOfWeek);
-                              });
+    .sort((a, b) => (a.title || '').localeCompare(b.title || ''));
 
   const allSorted = [...oneOff, ...recurring];
 
@@ -1150,11 +1149,25 @@ function renderAdminEventsList() {
 
     let dateStr;
     if (event.type === 'recurring') {
-      const day = event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1);
-      const freq = event.frequency === 'fortnightly' ? 'Every other' : 'Every';
-      dateStr = `${freq} ${day} Â· ${event.time}`;
+      if (event.frequency === 'specific' && event.specificDates) {
+        const next = event.specificDates
+          .map(d => new Date(d))
+          .filter(d => d >= new Date())
+          .sort((a, b) => a - b)[0];
+        dateStr = next
+          ? next.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) + ` · ${event.time}`
+          : `Specific dates · ${event.time}`;
+      } else if (event.dayOfWeek) {
+        const day = event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1);
+        const freq = event.frequency === 'fortnightly' ? 'Every other' : 'Every';
+        dateStr = `${freq} ${day} · ${event.time}`;
+      } else {
+        dateStr = event.time || '';
+      }
     } else {
-      dateStr = new Date(event.date).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) + ` Â· ${event.time}`;
+      dateStr = new Date(event.date).toLocaleDateString('en-GB', { 
+        day:'numeric', month:'short', year:'numeric' 
+      }) + ` · ${event.time}`;
     }
 
     item.innerHTML = `
@@ -1171,7 +1184,7 @@ function renderAdminEventsList() {
     `;
     list.appendChild(item);
   });
-}
+}s
 
 function toggleEventTypeFields() {
   const isRecurring = document.getElementById('event-type-recurring').checked;
@@ -1222,6 +1235,15 @@ function editEvent(id) {
   document.getElementById('event-end-date-oneoff').value = event.endDate || '';
   document.getElementById('event-time').value         = event.time || '';
   document.getElementById('event-document-url').value = event.documentUrl || '';
+}
+// Handle specific dates
+const specificDatesField = document.getElementById('specific-dates-field');
+if (event.frequency === 'specific' && specificDatesField) {
+  specificDatesField.classList.remove('hidden');
+  document.getElementById('event-specific-dates').value = 
+    (event.specificDates || []).join('\n');
+} else if (specificDatesField) {
+  specificDatesField.classList.add('hidden');
 }
 
   // Set location dropdown
