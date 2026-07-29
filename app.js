@@ -1184,7 +1184,7 @@ function renderAdminEventsList() {
     `;
     list.appendChild(item);
   });
-}s
+}
 
 function toggleEventTypeFields() {
   const isRecurring = document.getElementById('event-type-recurring').checked;
