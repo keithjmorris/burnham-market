@@ -58,6 +58,8 @@ MARKET_DATES_2026: [
   FLOWER_SHOW_ENTRY_OPEN: false,
 
   ROGUE_TRADERS_ENTRY_OPEN: false,
+
+  MONTHLY_MARKET_STALLS_LIVE: false,
 };
 
 // ── FIREBASE SETUP (Flower Show entries) ──
@@ -672,8 +674,9 @@ function buildEventCard(event) {
   } else {
     dateLineHtml = `${weekday} ${event.time}`;
   }
-  const isMarketEvent = (event.title || '').toLowerCase().includes('burnhams market') || 
-                      (event.title || '').toLowerCase().includes('monthly market');
+  const isMarketEvent = CONFIG.MONTHLY_MARKET_STALLS_LIVE && 
+                      ((event.title || '').toLowerCase().includes('burnhams market') || 
+                      (event.title || '').toLowerCase().includes('monthly market'));
 
   card.innerHTML = `
     <div class="event-header">
@@ -752,8 +755,9 @@ function buildRecurringEventCard(event) {
   const weekday = next.toLocaleString('en-GB', { weekday: 'long' });
   const hasLocation = !!(event.latitude && event.longitude);
   const hasDocument = !!event.documentUrl;
-  const isMarketEvent = (event.title || '').toLowerCase().includes('burnhams market') || 
-                      (event.title || '').toLowerCase().includes('monthly market');
+  const isMarketEvent = CONFIG.MONTHLY_MARKET_STALLS_LIVE && 
+                      ((event.title || '').toLowerCase().includes('burnhams market') || 
+                      (event.title || '').toLowerCase().includes('monthly market'));
   const freqLabel   = frequencyLabel(event);
 
   let dateRangeHtml = '';
