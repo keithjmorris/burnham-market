@@ -39,8 +39,7 @@ export default async function handler(req, res) {
     }
 
     // Step 2 — Check role in Firebase Realtime Database
-    const emailKey = username.replace(/@/g, '-at-').replace(/\./g, '-');
-    const roleResponse = await fetch(
+const emailKey = username.toLowerCase().replace(/@/g, '-at-').replace(/\./g, '-');    const roleResponse = await fetch(
       `${FIREBASE_DB_URL}/admins/roles/${emailKey}.json`
     );
     const role = await roleResponse.json();
