@@ -961,7 +961,7 @@ if (previousTab) {
     // Show temporary Craft Fair parking when seasonal tab is in fair mode
     if (CONFIG.SHOW_SEASONAL_TAB && CONFIG.SEASONAL_MODE === 'fair') {
       addMapMarkers('parking-temp', '#C4622D', '🅿');
-      addLegendItem(legend, '#C4622D', 'Craft Fair Parking (16 Aug only)');
+      addLegendItem(legend, '#C4622D', 'Craft Fair Parking (15 Aug only)');
     }
 
     map.invalidateSize();
