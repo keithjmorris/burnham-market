@@ -2141,7 +2141,7 @@ body.header-hidden .app-main {
 
 /* Inactive stall styling */
 .card.market-inactive {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 .market-inactive-badge {
