@@ -273,7 +273,7 @@ initInstallBanner();
     option.textContent = loc.name;
     select.appendChild(option);
   });
-});
+
 
 
 function checkSeasonalTab() {
