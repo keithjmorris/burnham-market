@@ -243,18 +243,41 @@
     return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   }
 
+  // ── ROLE CHECK ──────────────────────────────────
+function emailToKey(email) {
+  return email.replace(/@/g, '-at-').replace(/\./g, '-');
+}
+
+async function checkRole(user, allowedRoles) {
+  const key  = emailToKey(user.email);
+  const snap = await db.ref(`admins/roles/${key}`).once('value');
+  const role = snap.val();
+
+  if (!role || !allowedRoles.includes(role)) {
+    document.getElementById('loginWrap').style.display    = 'none';
+    document.getElementById('adminWrap').style.display    = 'none';
+    document.getElementById('accessDenied').style.display = 'flex';
+    await auth.signOut();
+    return false;
+  }
+  return true;
+}
+
   // ── AUTH ──────────────────────────────────────────────────────────────
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById('loginWrap').style.display  = 'none';
-      document.getElementById('adminWrap').style.display  = 'block';
-      document.getElementById('adminEmail').textContent   = user.email;
-      loadStalls();
-    } else {
-      document.getElementById('loginWrap').style.display  = 'flex';
-      document.getElementById('adminWrap').style.display  = 'none';
-    }
-  });
+  auth.onAuthStateChanged(async user => {
+  if (user) {
+    const allowed = await checkRole(user, ['master', 'monthly-market']);
+    if (!allowed) return;
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    document.getElementById('adminEmail').textContent  = user.email;
+    loadStalls();
+  } else {
+    document.getElementById('loginWrap').style.display  = 'flex';
+    document.getElementById('adminWrap').style.display  = 'none';
+    document.getElementById('accessDenied').style.display = 'none';
+  }
+});s
 
   document.getElementById('loginBtn').addEventListener('click', async () => {
     const email    = document.getElementById('loginEmail').value.trim();
@@ -492,5 +515,11 @@
     URL.revokeObjectURL(url);
   });
 </script>
+<div id="accessDenied" style="display:none;position:fixed;inset:0;background:#FAF7F2;z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:40px;">
+  <div style="font-size:48px;">🚫</div>
+  <h2 style="font-family:Georgia,serif;font-size:22px;color:#2C4A3E;">Access Denied</h2>
+  <p style="font-size:14px;color:#888;max-width:300px;">You don't have permission to access this page. Please contact the administrator.</p>
+  <button onclick="auth.signOut().then(()=>location.reload())" style="background:#2C4A3E;color:white;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">Sign out</button>
+</div>
 </body>
 </html>
