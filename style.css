@@ -2138,10 +2138,19 @@ body.header-hidden .app-main {
   flex-direction: column;
   gap: 14px;
 }
-
-/* Inactive stall styling */
-.card.market-inactive {
+.market-inactive .card-image,
+.market-inactive .card-name,
+.market-inactive .card-description,
+.market-inactive .card-tag,
+.market-inactive .card-actions {
   opacity: 0.3;
+}
+
+.market-inactive .market-inactive-badge {
+  opacity: 1;
+  background: #e8f0ed;
+  color: #2C4A3E;
+  font-weight: 700;
 }
 
 .market-inactive-badge {
