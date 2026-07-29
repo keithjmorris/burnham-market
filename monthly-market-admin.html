@@ -268,7 +268,7 @@ async function checkRole(user, allowedRoles) {
     document.getElementById('loginWrap').style.display = 'none';
     document.getElementById('adminWrap').style.display = 'block';
     document.getElementById('adminEmail').textContent  = user.email;
-    loadEntries();
+setTimeout(loadStalls, 200);
   } else {
     document.getElementById('loginWrap').style.display    = 'flex';
     document.getElementById('adminWrap').style.display    = 'none';
