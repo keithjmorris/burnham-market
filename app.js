@@ -226,7 +226,7 @@ let editingEventId = null;
 let eventSortOrder   = 'date';
 let eventTypeFilter  = 'all';
 let deferredInstallPrompt = null;
-let allStalls = [];
+
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
