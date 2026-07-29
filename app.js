@@ -226,6 +226,7 @@ let editingEventId = null;
 let eventSortOrder   = 'date';
 let eventTypeFilter  = 'all';
 let deferredInstallPrompt = null;
+let allStalls = [];
 
 // ── DAYS OF WEEK ──────────────────────────────
 const DAYS = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
@@ -266,14 +267,15 @@ initInstallBanner();
   });
 
   // ── Populate location dropdown ──
-  const select = document.getElementById('event-location-select');
+const select = document.getElementById('event-location-select');
+if (select) {
   EVENT_LOCATIONS.forEach(loc => {
     const option = document.createElement('option');
     option.value = loc.name;
     option.textContent = loc.name;
     select.appendChild(option);
   });
-
+}
 
 
 function checkSeasonalTab() {
