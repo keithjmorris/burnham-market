@@ -238,6 +238,7 @@
         <option value="weekly">Weekly</option>
         <option value="fortnightly">Fortnightly</option>
         <option value="monthly">Monthly (same day each month)</option>
+<option value="specific">Specific dates</option>
       </select>
     </div>
     <div class="admin-field">
@@ -249,6 +250,12 @@
       <input class="admin-input" type="date" id="event-end-date" />
     </div>
   </div>
+
+  <!-- Specific dates field (shown when frequency = specific) -->
+<div class="admin-field hidden" id="specific-dates-field">
+  <label class="admin-label">Specific dates <span style="font-weight:400;opacity:0.6">(one per line, format: 2026-07-25)</span></label>
+  <textarea class="admin-input" id="event-specific-dates" rows="4" placeholder="2026-07-25&#10;2026-08-22&#10;2026-09-19"></textarea>
+</div>
 
   <!-- Location (shared) -->
   <div class="admin-field">

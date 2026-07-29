@@ -241,6 +241,14 @@ document.addEventListener('DOMContentLoaded', () => {
   loadEvents();
   // ── Install prompt ──
 initInstallBanner();
+// ── Frequency dropdown listener ──
+  document.getElementById('event-frequency')?.addEventListener('change', function() {
+    const specificDatesField = document.getElementById('specific-dates-field');
+    if (specificDatesField) {
+      specificDatesField.classList.toggle('hidden', this.value !== 'specific');
+    }
+  });
+});
 
   // ── Secret tap sequence on header title ──
   document.querySelector('.app-title').addEventListener('click', function(e) {
@@ -416,12 +424,19 @@ function renderEventsTab() {
       displayEvents.push({ ...e, _sortDate: new Date(e.date) });
     }
   } else if (e.type === 'recurring') {
-      // Recurring: include if end date hasn't passed (or no end date)
-      if (!e.endDate || new Date(e.endDate) >= now) {
-        const next = nextOccurrence(e);
-        displayEvents.push({ ...e, _sortDate: next, _nextDate: next });
-      }
-    }
+  const endDate = e.endDate ? new Date(e.endDate) : null;
+  if (endDate && endDate < twoDaysAgo) return;
+  
+  // For specific dates, check if any upcoming dates remain
+  if (e.frequency === 'specific' && e.specificDates) {
+    const hasUpcoming = e.specificDates.some(d => new Date(d) >= twoDaysAgo);
+    if (!hasUpcoming) return;
+  }
+  
+  const next = nextOccurrence(e);
+  if (!next) return;
+  displayEvents.push({ ...e, _nextDate: next, _sortDate: next });
+}
   });
 
   // â”€â”€ Filter bar
@@ -549,38 +564,44 @@ function renderRecurringEvents(list) {
 
 // Returns the next Date object for a recurring event from today
 function nextOccurrence(event) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
 
-  const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
-  const targetDay = dayNames.indexOf(event.dayOfWeek.toLowerCase());
-  if (targetDay === -1) return today;
+  // Handle specific dates array
+  if (event.frequency === 'specific' && event.specificDates) {
+    const upcoming = event.specificDates
+      .map(d => new Date(d))
+      .filter(d => d >= now)
+      .sort((a, b) => a - b);
+    return upcoming.length > 0 ? upcoming[0] : null;
+  }
 
-  const next = new Date(today);
-  const todayDay = next.getDay();
-  let daysUntil = (targetDay - todayDay + 7) % 7;
-  if (daysUntil === 0) daysUntil = 0; // today counts
+  // Handle weekly events
+  if (event.frequency === 'weekly') {
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const targetDay = days.indexOf((event.dayOfWeek || '').toLowerCase());
+    if (targetDay === -1) return null;
+    const next = new Date(now);
+    const currentDay = next.getDay();
+    let daysUntil = targetDay - currentDay;
+    if (daysUntil <= 0) daysUntil += 7;
+    next.setDate(next.getDate() + daysUntil);
+    return next;
+  }
 
-  next.setDate(next.getDate() + daysUntil);
-
-  // If fortnightly, check parity against startDate
-  if (event.frequency === 'fortnightly' && event.startDate) {
-    const start = new Date(event.startDate);
-    start.setHours(0,0,0,0);
-    const weeksDiff = Math.round((next - start) / (7 * 24 * 60 * 60 * 1000));
-    if (weeksDiff % 2 !== 0) {
-      next.setDate(next.getDate() + 7);
+  // Handle monthly events (same day each month)
+  if (event.frequency === 'monthly') {
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const targetDay = days.indexOf((event.dayOfWeek || '').toLowerCase());
+    if (targetDay === -1) return null;
+    const next = new Date(now);
+    while (next.getDay() !== targetDay) {
+      next.setDate(next.getDate() + 1);
     }
+    return next;
   }
 
-  // If the calculated next occurrence is before the startDate, use startDate instead
-  if (event.startDate) {
-    const start = new Date(event.startDate);
-    start.setHours(0,0,0,0);
-    if (next < start) return start;
-  }
-
-  return next;
+  return null;
 }
 
 function daysUntilLabel(event) {
@@ -595,14 +616,33 @@ function daysUntilLabel(event) {
 }
 
 function frequencyLabel(event) {
-  const day = event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1);
-  const freq = event.frequency === 'fortnightly' ? 'Every other' : 'Every';
-  return `${freq} ${day} at ${event.time}`;
-}
-function setSortOrder(order) {
-  eventSortOrder = order;
-  renderEventsTab();
-  document.getElementById('app-main').scrollTop = 0;
+  if (event.frequency === 'specific' && event.specificDates) {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const upcoming = event.specificDates
+      .map(d => new Date(d))
+      .filter(d => d >= now)
+      .sort((a, b) => a - b);
+    if (upcoming.length > 0) {
+      return upcoming[0].toLocaleDateString('en-GB', { 
+        weekday: 'long', day: 'numeric', month: 'long' 
+      }) + ' · ' + event.time;
+    }
+    return event.time || '';
+  }
+  if (event.frequency === 'weekly') {
+    const day = event.dayOfWeek 
+      ? event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1) 
+      : '';
+    return `Every ${day} · ${event.time}`;
+  }
+  if (event.frequency === 'monthly') {
+    const day = event.dayOfWeek 
+      ? event.dayOfWeek.charAt(0).toUpperCase() + event.dayOfWeek.slice(1) 
+      : '';
+    return `Monthly ${day} · ${event.time}`;
+  }
+  return event.time || '';
 }
 
 function setEventTypeFilter(filter) {
@@ -1275,14 +1315,20 @@ async function submitEvent() {
     }
 
     eventData = {
-      type: 'recurring',
-      title, location, description: desc,
-      dayOfWeek, time, frequency,
-      startDate: startDate || null,
-      endDate:   endDate   || null,
-      documentUrl: document.getElementById('event-document-url').value.trim() || null,
-      latitude: lat, longitude: lng
-    };
+  type: 'recurring',
+  title, location, description: desc,
+  dayOfWeek, time, frequency,
+  startDate: startDate || null,
+  endDate:   endDate   || null,
+  specificDates: frequency === 'specific'
+    ? document.getElementById('event-specific-dates').value
+        .split('\n')
+        .map(d => d.trim())
+        .filter(d => d.match(/^\d{4}-\d{2}-\d{2}$/))
+    : null,
+  documentUrl: document.getElementById('event-document-url').value.trim() || null,
+  latitude: lat, longitude: lng
+};
   } else {
   const date    = document.getElementById('event-date').value;
   const endDate = document.getElementById('event-end-date-oneoff').value;
