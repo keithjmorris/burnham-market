@@ -264,18 +264,15 @@ async function checkRole(user, allowedRoles) {
 }
 
   // ── AUTH ──────────────────────────────────────────────────────────────
-  auth.onAuthStateChanged(async user => {
+  auth.onAuthStateChanged(user => {
   if (user) {
-    const allowed = await checkRole(user, ['master', 'monthly-market']);
-    if (!allowed) return;
     document.getElementById('loginWrap').style.display = 'none';
     document.getElementById('adminWrap').style.display = 'block';
     document.getElementById('adminEmail').textContent  = user.email;
     loadStalls();
   } else {
-    document.getElementById('loginWrap').style.display  = 'flex';
-    document.getElementById('adminWrap').style.display  = 'none';
-    document.getElementById('accessDenied').style.display = 'none';
+    document.getElementById('loginWrap').style.display = 'flex';
+    document.getElementById('adminWrap').style.display = 'none';
   }
 });
 
