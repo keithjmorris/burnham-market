@@ -243,16 +243,14 @@
     return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   }
 
-  // ── ROLE CHECK ──────────────────────────────────
 function emailToKey(email) {
-  return email.replace(/@/g, '-at-').replace(/\./g, '-');
+  return email.toLowerCase().replace(/@/g, '-at-').replace(/\./g, '-');
 }
 
 async function checkRole(user, allowedRoles) {
   const key  = emailToKey(user.email);
   const snap = await db.ref(`admins/roles/${key}`).once('value');
   const role = snap.val();
-
   if (!role || !allowedRoles.includes(role)) {
     document.getElementById('loginWrap').style.display    = 'none';
     document.getElementById('adminWrap').style.display    = 'none';
@@ -262,17 +260,19 @@ async function checkRole(user, allowedRoles) {
   }
   return true;
 }
-
   // ── AUTH ──────────────────────────────────────────────────────────────
-  auth.onAuthStateChanged(user => {
+  auth.onAuthStateChanged(async user => {
   if (user) {
+    const allowed = await checkRole(user, ['master', 'monthly-market']);
+    if (!allowed) return;
     document.getElementById('loginWrap').style.display = 'none';
     document.getElementById('adminWrap').style.display = 'block';
     document.getElementById('adminEmail').textContent  = user.email;
-    loadStalls();
+    loadEntries();
   } else {
-    document.getElementById('loginWrap').style.display = 'flex';
-    document.getElementById('adminWrap').style.display = 'none';
+    document.getElementById('loginWrap').style.display    = 'flex';
+    document.getElementById('adminWrap').style.display    = 'none';
+    document.getElementById('accessDenied').style.display = 'none';
   }
 });
 
