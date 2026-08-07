@@ -25,7 +25,7 @@
   --radius-sm:   8px;
   --radius-md:   14px;
   --radius-lg:   20px;
-  --tab-height:  48px;
+  --tab-height:  56px;
   --header-height: 64px;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'Source Sans 3', system-ui, sans-serif;
@@ -94,7 +94,7 @@ img { display: block; }
 .app-main {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + var(--header-height));
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tab-height));
+ bottom: calc(min(env(safe-area-inset-bottom, 0px), 8px) + var(--tab-height));
   left: 0; right: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
