@@ -1735,7 +1735,7 @@ console.log('Looking for stall:', stallNumber, 'Found:', stallLoc, 'All stall nu
         const centre = stallLoc
           ? [stallLoc.lat, stallLoc.lng]
           : [52.9455, 0.7260];
-        const zoom = stallLoc ? 20 : 18;
+        const zoom = stallLoc ? 19 : 17;
 
         const m = L.map('stall-map-leaflet', {
           center: centre,
