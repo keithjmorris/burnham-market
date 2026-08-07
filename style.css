@@ -25,7 +25,7 @@
   --radius-sm:   8px;
   --radius-md:   14px;
   --radius-lg:   20px;
-  --tab-height:  72px;
+  --tab-height:  56px;
   --header-height: 64px;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'Source Sans 3', system-ui, sans-serif;
@@ -334,8 +334,8 @@ img { display: block; }
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: calc(var(--tab-height) + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(var(--tab-height) + min(env(safe-area-inset-bottom, 0px), 20px));
+  padding-bottom: min(env(safe-area-inset-bottom, 0px), 20px);
   background: var(--white);
   border-top: 1px solid var(--cream-dark);
   display: flex;
