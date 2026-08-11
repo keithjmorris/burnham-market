@@ -677,6 +677,7 @@ function buildEventCard(event) {
   const isMarketEvent = CONFIG.MONTHLY_MARKET_STALLS_LIVE && 
                       ((event.title || '').toLowerCase().includes('burnhams market') || 
                       (event.title || '').toLowerCase().includes('monthly market'));
+                      const hasExternalUrl = !!event.externalUrl;
 
   card.innerHTML = `
     <div class="event-header">
@@ -704,6 +705,11 @@ function buildEventCard(event) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
           Directions
         </button>` : ''}
+        ${hasExternalUrl ? `
+<button class="event-action-btn" onclick="openWebsite('${event.externalUrl}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  ${event.externalUrlLabel || 'View Guide'}
+</button>` : ''}
       </div>
       ${hasDocument ? `
   <button class="event-action-btn" onclick="openDocPanel('${encodeURIComponent(event.documentUrl)}','${encodeURIComponent(event.title)}')">
@@ -758,6 +764,7 @@ function buildRecurringEventCard(event) {
   const isMarketEvent = CONFIG.MONTHLY_MARKET_STALLS_LIVE && 
                       ((event.title || '').toLowerCase().includes('burnhams market') || 
                       (event.title || '').toLowerCase().includes('monthly market'));
+                      const hasExternalUrl = !!event.externalUrl;
   const freqLabel   = frequencyLabel(event);
 
   let dateRangeHtml = '';
@@ -808,6 +815,11 @@ function buildRecurringEventCard(event) {
 <button class="event-action-btn" onclick="openMarketPanel('${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}')">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
   View Stalls
+</button>` : ''}
+${hasExternalUrl ? `
+<button class="event-action-btn" onclick="openWebsite('${event.externalUrl}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+  ${event.externalUrlLabel || 'View Guide'}
 </button>` : ''}
 </div>
     </div>
@@ -1576,6 +1588,11 @@ function renderStallCards() {
   padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
   🅿 Parking
 </button>
+<button onclick="openStallGuide()" style="
+    flex:1;background:var(--green);color:white;border:none;border-radius:20px;
+    padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+    📖 Stall Guide
+  </button>
   `;
   list.appendChild(actionBar);
 
@@ -1609,6 +1626,10 @@ function setStallFilter(category) {
   stallCategoryFilter = category === 'All' ? '' : category;
   renderStallCards();
   document.getElementById('app-main').scrollTop = 0;
+}
+
+function openStallGuide() {
+  window.open('https://burnham-market-craft-fair-2026.vercel.app', '_blank', 'noopener');
 }
 
 function buildStallCard(stall) {
