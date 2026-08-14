@@ -1070,8 +1070,14 @@ function openDirections(lat, lng, name) {
 }
 
 function openWebsite(url) {
+  if (!url) return;
+  // Add https:// if missing
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
   window.open(url, '_blank', 'noopener');
 }
+
 
 // ── UI HELPERS ─────────────────────────────────
 function showState(state) {
@@ -1632,17 +1638,30 @@ function openStallGuide() {
   window.open('https://burnham-market-craft-fair-2026.vercel.app', '_blank', 'noopener');
 }
 
+function cleanSocialHandle(handle, platform) {
+  if (!handle) return '';
+  // Remove any URL prefix leaving just the handle/page name
+  handle = handle.replace(/^https?:\/\//i, '');
+  handle = handle.replace(/^www\./i, '');
+  handle = handle.replace(/^facebook\.com\//i, '');
+  handle = handle.replace(/^instagram\.com\//i, '');
+  handle = handle.replace(/^@/, '');
+  return handle.trim();
+}
+
 function buildStallCard(stall) {
   const card = document.createElement('div');
   card.className = 'card';
 
   const hasPhone    = !!stall.phone;
   const hasWebsite  = !!stall.website;
-  const hasSocial   = !!(stall.instagram || stall.facebook);
-  const isInstagram = !!stall.instagram;
-  const socialUrl   = stall.instagram
-    ? `https://www.instagram.com/${stall.instagram}`
-    : `https://www.facebook.com/${stall.facebook}`;
+  const igHandle = cleanSocialHandle(stall.instagram);
+const fbHandle = cleanSocialHandle(stall.facebook);
+const hasSocial = !!(igHandle || fbHandle);
+const isInstagram = !!igHandle;
+const socialUrl = igHandle
+  ? `https://www.instagram.com/${igHandle}`
+  : `https://www.facebook.com/${fbHandle}`;
 
   const imgHtml = stall.image
     ? `<img class="card-image" src="${stall.image}" alt="${stall.name}" loading="lazy" onerror="this.style.display='none'">`
