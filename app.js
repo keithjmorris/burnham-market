@@ -216,7 +216,7 @@ function renderWeather(data) {
 
 // ── APP STATE ──────────────────────────────────
 let allEntries  = [];    // all records from JSONBin
-let currentTab  = 'shops';
+let currentTab  = 'seasonal';
 let map         = null;  // Leaflet map instance
 let activeFilter = null;
 let allEvents = [];
