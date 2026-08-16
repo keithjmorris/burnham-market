@@ -2378,11 +2378,13 @@ function buildMarketStallCard(stall) {
 
   const hasPhone   = !!stall.phone;
   const hasWebsite = !!stall.website;
-  const hasSocial  = !!(stall.instagram || stall.facebook);
-  const isInstagram = !!stall.instagram;
-  const socialUrl  = stall.instagram
-    ? `https://www.instagram.com/${stall.instagram}`
-    : `https://www.facebook.com/${stall.facebook}`;
+  const igHandle = cleanSocialHandle(stall.instagram);
+const fbHandle = cleanSocialHandle(stall.facebook);
+const hasSocial = !!(igHandle || fbHandle);
+const isInstagram = !!igHandle;
+const socialUrl = igHandle
+  ? `https://www.instagram.com/${igHandle}`
+  : `https://www.facebook.com/${fbHandle}`;
 
   const imgHtml = stall.image
     ? `<img class="card-image" src="${stall.image}" alt="${stall.name}" loading="lazy" onerror="this.style.display='none'">`
