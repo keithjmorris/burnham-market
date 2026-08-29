@@ -266,11 +266,10 @@ initInstallBanner();
       clearTimeout(headerTapTimer);
       openAdmin();
     }
-  });
-
-  // ── Populate location dropdown ──
-const select = document.getElementById('event-location-select');
-if (select) {
+  });function populateLocationDropdown() {
+  const select = document.getElementById('event-location-select');
+  if (!select) return;
+  if (select.options.length > 1) return; // already populated — avoid duplicates
   EVENT_LOCATIONS.forEach(loc => {
     const option = document.createElement('option');
     option.value = loc.name;
@@ -278,6 +277,8 @@ if (select) {
     select.appendChild(option);
   });
 }
+
+populateLocationDropdown(); // still try once at load, in case the element is already present
 
 
 function checkSeasonalTab() {
@@ -1209,6 +1210,7 @@ function toggleEventTypeFields() {
 }
 
 function showNewEventForm() {
+   populateLocationDropdown();
   editingEventId = null;
   document.getElementById('admin-form-title').textContent = 'New Event';
   document.getElementById('admin-submit-btn').textContent = 'Post Event';
@@ -1263,6 +1265,7 @@ if (event.frequency === 'specific' && specificDatesField) {
 }
 
   // Set location dropdown
+   populateLocationDropdown();
   const select   = document.getElementById('event-location-select');
   const knownLoc = EVENT_LOCATIONS.find(l => l.name === event.location);
   if (knownLoc) {
