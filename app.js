@@ -1547,28 +1547,11 @@ function prevSlide() { goToSlide(galleryIndex - 1); }
 // ── CRAFT FAIR STALLS ──────────────────────────
 let allStalls = [];
 let stallCategoryFilter = '';
+
 function renderFairCards() {
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
 
-  // Map + Parking buttons — still useful even without the stall list
-  const actionBar = document.createElement('div');
-  actionBar.style.cssText = 'display:flex;gap:8px;padding:12px 16px;background:white;border-bottom:1px solid var(--cream-dark);';
-  actionBar.innerHTML = `
-    <button onclick="openDocPanel('${encodeURIComponent('https://raw.githubusercontent.com/keithjmorris/burnham-market-craft-fair/main/images/craft-fair-map.png')}','Craft Fair Map')" style="
-      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
-      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
-      🗺 View Map
-    </button>
-    <button onclick="previousTab='seasonal';switchTab('parking')" style="
-      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
-      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
-      🅿 Parking
-    </button>
-  `;
-  list.appendChild(actionBar);
-
-  // Link-out card, replacing the stall list
   const linkCard = document.createElement('div');
   linkCard.style.cssText = 'margin:24px 16px;padding:32px 20px;background:white;border-radius:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);';
   linkCard.innerHTML = `
@@ -1583,6 +1566,7 @@ function renderFairCards() {
   `;
   list.appendChild(linkCard);
 }
+
 function setStallFilter(category) {
   stallCategoryFilter = category === 'All' ? '' : category;
   renderStallCards();
