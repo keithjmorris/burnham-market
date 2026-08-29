@@ -976,12 +976,6 @@ if (previousTab) {
     addLegendItem(legend, '#2C4A3E', 'Car Park');
     addLegendItem(legend, '#4A7C8E', 'Public Toilets');
 
-    // Show temporary Craft Fair parking when seasonal tab is in fair mode
-    if (CONFIG.SHOW_SEASONAL_TAB && CONFIG.SEASONAL_MODE === 'fair') {
-      addMapMarkers('parking-temp', '#C4622D', '🅿');
-      addLegendItem(legend, '#C4622D', 'Craft Fair Parking (15 Aug only)');
-    }
-
     map.invalidateSize();
   }, 50);
 }
@@ -1553,34 +1547,11 @@ function prevSlide() { goToSlide(galleryIndex - 1); }
 // ── CRAFT FAIR STALLS ──────────────────────────
 let allStalls = [];
 let stallCategoryFilter = '';
-
 function renderFairCards() {
-  // Load stalls from Firebase
-  if (allStalls.length > 0) {
-    renderStallCards();
-    return;
-  }
-
-  const list = document.getElementById('cards-list');
-  list.innerHTML = '<div class="loading-state"><div class="loading-spinner"></div><p>Loading stalls…</p></div>';
-
-  flowerShowDb.ref('craft-fair/stalls').once('value', snap => {
-    const raw = snap.val();
-    if (!raw) {
-      list.innerHTML = '<div class="empty-state"><p>No stalls found.</p></div>';
-      return;
-    }
-    allStalls = Object.values(raw)
-      .sort((a, b) => String(a.stallNumber).localeCompare(String(b.stallNumber)));
-    renderStallCards();
-  });
-}
-
-function renderStallCards() {
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
 
-  // Action buttons bar
+  // Map + Parking buttons — still useful even without the stall list
   const actionBar = document.createElement('div');
   actionBar.style.cssText = 'display:flex;gap:8px;padding:12px 16px;background:white;border-bottom:1px solid var(--cream-dark);';
   actionBar.innerHTML = `
@@ -1590,44 +1561,28 @@ function renderStallCards() {
       🗺 View Map
     </button>
     <button onclick="previousTab='seasonal';switchTab('parking')" style="
-  flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
-  padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
-  🅿 Parking
-</button>
-<button onclick="openStallGuide()" style="
-    flex:1;background:var(--green);color:white;border:none;border-radius:20px;
-    padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
-    📖 Stall Guide
-  </button>
+      flex:1;background:var(--green-muted);color:var(--green);border:none;border-radius:20px;
+      padding:8px 12px;font-size:13px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+      🅿 Parking
+    </button>
   `;
   list.appendChild(actionBar);
 
-  // Category filter bar
-  const categories = ['All', ...new Set(allStalls.map(s => s.category).filter(Boolean).sort())];
-  const filterBar = document.createElement('div');
-  filterBar.className = 'craft-filter-bar';
-  filterBar.innerHTML = categories.map(cat => `
-    <button class="craft-filter-pill ${(stallCategoryFilter === cat || (cat === 'All' && !stallCategoryFilter)) ? 'active' : ''}"
-      onclick="setStallFilter('${cat}')">
-      ${cat}
+  // Link-out card, replacing the stall list
+  const linkCard = document.createElement('div');
+  linkCard.style.cssText = 'margin:24px 16px;padding:32px 20px;background:white;border-radius:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);';
+  linkCard.innerHTML = `
+    <p style="font-size:15px;color:var(--text-muted,#666);margin:0 0 18px;line-height:1.5;">
+      Browse this year's stalls, search by category, and find out more about each stallholder.
+    </p>
+    <button onclick="openStallGuide()" style="
+      background:var(--green);color:white;border:none;border-radius:24px;
+      padding:14px 28px;font-size:15px;font-weight:700;font-family:var(--font-body);cursor:pointer;">
+      📖 View the Full Stall Guide →
     </button>
-  `).join('');
-  list.appendChild(filterBar);
-
-  const filtered = stallCategoryFilter && stallCategoryFilter !== 'All'
-    ? allStalls.filter(s => s.category === stallCategoryFilter)
-    : allStalls;
-
-  if (filtered.length === 0) {
-    list.innerHTML += '<div class="empty-state"><p>No stalls in this category.</p></div>';
-    return;
-  }
-
-  filtered.forEach(stall => {
-    list.appendChild(buildStallCard(stall));
-  });
+  `;
+  list.appendChild(linkCard);
 }
-
 function setStallFilter(category) {
   stallCategoryFilter = category === 'All' ? '' : category;
   renderStallCards();
