@@ -373,6 +373,10 @@ function renderCardTab(tab) {
   const weatherCard = document.getElementById('weather-card');
   weatherCard.classList.toggle('hidden', !['shops', 'restaurant', 'facility', 'whatson'].includes(tab));
 
+  // Show the about/footer text only on the Shops tab
+  const footer = document.getElementById('village-footer');
+  footer.classList.toggle('hidden', tab !== 'shops');
+
   showState('cards');
   const list = document.getElementById('cards-list');
   list.innerHTML = '';
